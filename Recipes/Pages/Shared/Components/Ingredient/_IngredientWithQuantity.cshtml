@@ -1,0 +1,14 @@
+﻿@page
+@model Recipes.API.Models.Entities.IngredientWithQuantityEntity
+@{
+    var measureUnit = Model.Ingredient.UseWeight ? "grame" : "";
+}
+
+<div>
+    <div>
+        @Model.Ingredient.Name
+    </div>
+    <div>
+        @Model.Quantity @measureUnit
+    </div>
+</div>
