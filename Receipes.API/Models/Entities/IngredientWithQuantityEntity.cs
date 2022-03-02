@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Recipes.API.Models.Entities
 {
@@ -11,7 +10,7 @@ namespace Recipes.API.Models.Entities
 
         public IngredientEntity Ingredient { get; set; }
         [ForeignKey(nameof(IngredientId))]
-        public int IngredientId { get; set; } 
+        public int IngredientId { get; set; }
 
         [Column(TypeName = "decimal(5, 1)")]
         public decimal Quantity { get; set; }

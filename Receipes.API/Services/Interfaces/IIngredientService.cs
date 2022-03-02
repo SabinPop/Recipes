@@ -1,11 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Recipes.API.Models.Entities;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Recipes.API.Services.Interfaces
 {
-    interface IIngredientService
+    public interface IIngredientService
     {
+        public bool Exists(IngredientEntity ingredient);
+        public bool Exists(int id);
+
+        public bool CreateIngredient(IngredientEntity ingredient);
+        public IngredientEntity GetIngredientById(int id);
+        public bool UpdateIngredient(IngredientEntity ingredient);
+        public bool DeleteIngredient(int id);
+
+        public IQueryable<IngredientEntity> GetAllIngredients();
+
     }
 }

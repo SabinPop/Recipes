@@ -7,7 +7,7 @@ namespace Recipes.API.Data
     public class RecipesDbContext : DbContext
     {
         public virtual DbSet<RecipeEntity> Recipes { get; set; }
-        public virtual DbSet<IngredientEntity> IngredientEntities { get; set; }
+        public virtual DbSet<IngredientEntity> Ingredients { get; set; }
         public virtual DbSet<NutritionalValuesEntity> NutritionalValues { get; set; }
         public virtual DbSet<RecipeStepEntity> RecipeSteps { get; set; }
         public virtual DbSet<TagEntity> Tags { get; set; }

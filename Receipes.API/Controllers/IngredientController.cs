@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Recipes.API.Data;
 using Recipes.API.Models.Entities;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Recipes.API.Controllers
 {
@@ -25,14 +23,14 @@ namespace Recipes.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<IngredientEntity>>> GetIngredientEntities()
         {
-            return await _context.IngredientEntities.ToListAsync();
+            return await _context.Ingredients.ToListAsync();
         }
 
         // GET: api/Ingredient/5
         [HttpGet("{id}")]
         public async Task<ActionResult<IngredientEntity>> GetIngredientEntity(int id)
         {
-            var ingredientEntity = await _context.IngredientEntities.FindAsync(id);
+            var ingredientEntity = await _context.Ingredients.FindAsync(id);
 
             if (ingredientEntity == null)
             {
@@ -78,7 +76,7 @@ namespace Recipes.API.Controllers
         [HttpPost]
         public async Task<ActionResult<IngredientEntity>> PostIngredientEntity(IngredientEntity ingredientEntity)
         {
-            _context.IngredientEntities.Add(ingredientEntity);
+            _context.Ingredients.Add(ingredientEntity);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetIngredientEntity", new { id = ingredientEntity.IngredientId }, ingredientEntity);
@@ -88,13 +86,13 @@ namespace Recipes.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteIngredientEntity(int id)
         {
-            var ingredientEntity = await _context.IngredientEntities.FindAsync(id);
+            var ingredientEntity = await _context.Ingredients.FindAsync(id);
             if (ingredientEntity == null)
             {
                 return NotFound();
             }
 
-            _context.IngredientEntities.Remove(ingredientEntity);
+            _context.Ingredients.Remove(ingredientEntity);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +100,7 @@ namespace Recipes.API.Controllers
 
         private bool IngredientEntityExists(int id)
         {
-            return _context.IngredientEntities.Any(e => e.IngredientId == id);
+            return _context.Ingredients.Any(e => e.IngredientId == id);
         }
     }
 }
