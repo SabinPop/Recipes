@@ -61,10 +61,16 @@ namespace Recipes.API.Data
             modelBuilder.Entity<IngredientEntity>()
                 .HasOne(i => i.NutritionalValues)
                 .WithOne(nv => nv.Ingredient);
-
+                
             modelBuilder.Entity<NutritionalValuesEntity>()
                 .HasOne(nv => nv.Ingredient)
-                .WithOne(i => i.NutritionalValues);
+                .WithOne(i => i.NutritionalValues)
+                .HasForeignKey<NutritionalValuesEntity>(nv => nv.IngredientId);
+
+            modelBuilder.Entity<IngredientEntity>()
+                .HasIndex(i => i.Name)
+                .IsUnique();
+
         }
     }
 }

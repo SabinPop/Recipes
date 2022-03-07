@@ -4,6 +4,7 @@ using Recipes.API.Models.Entities;
 using Recipes.API.Services.Interfaces;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Recipes.API.Services
 {
@@ -18,7 +19,7 @@ namespace Recipes.API.Services
 
         public bool CreateIngredient(IngredientEntity ingredient)
         {
-            if (ingredient == null)
+            if (ingredient is null)
                 return false;
             if (Exists(ingredient))
                 return false;
@@ -54,12 +55,22 @@ namespace Recipes.API.Services
 
         public bool Exists(IngredientEntity ingredient)
         {
-            return _context.Ingredients.FirstOrDefault(i => i == ingredient) != null;
+            return _context.Ingredients.AsNoTracking().Include(i => i.NutritionalValues).ToList().Any(i => i == ingredient);
+        }
+        
+        public async Task<bool> ExistsAsync(IngredientEntity ingredient)
+        {
+            return (await _context.Ingredients.AsNoTracking().Include(i => i.NutritionalValues).ToListAsync()).Any(i => i == ingredient);
         }
 
         public bool Exists(int id)
         {
-            return _context.Ingredients.FirstOrDefault(i => i.IngredientId == id) != null;
+            return _context.Ingredients.Any(i => i.IngredientId == id);
+        }
+        
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Ingredients.AnyAsync(i => i.IngredientId == id);
         }
 
         public IQueryable<IngredientEntity> GetAllIngredients()
@@ -69,12 +80,17 @@ namespace Recipes.API.Services
 
         public IngredientEntity GetIngredientById(int id)
         {
-            return _context.Ingredients.FirstOrDefault(i => i.IngredientId == id);
+            return _context.Ingredients.AsNoTracking().Include(i => i.NutritionalValues).FirstOrDefault(i => i.IngredientId == id);
+        }
+
+        public async Task<IngredientEntity> GetIngredientByIdAsync(int id)
+        {
+            return await _context.Ingredients.AsNoTracking().Include(i => i.NutritionalValues).FirstOrDefaultAsync(i => i.IngredientId == id);
         }
 
         public bool UpdateIngredient(IngredientEntity ingredient)
         {
-            if (ingredient == null)
+            if (ingredient is null)
                 return false;
             if (Exists(ingredient) == false)
                 return false;

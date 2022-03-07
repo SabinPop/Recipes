@@ -1,4 +1,9 @@
-﻿namespace Recipes.API.Data.Seed
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Recipes.API.Data.Seed
 {
     public class Aliment
     {

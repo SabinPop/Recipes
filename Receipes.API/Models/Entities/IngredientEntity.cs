@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Recipes.API.Models.Entities
 {
-    public class IngredientEntity
+    public class IngredientEntity : IEquatable<IngredientEntity>
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -27,5 +28,44 @@ namespace Recipes.API.Models.Entities
 
         public NutritionalValuesEntity NutritionalValues { get; set; }
 
+        public bool Equals(IngredientEntity other)
+        {
+            if (other is null)
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            if (GetType() != other.GetType())
+                return false;
+            return (Name == other.Name) 
+                && (NutritionalValues == other.NutritionalValues);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(Equals(obj as IngredientEntity));
+        }
+
+        public static bool operator ==(IngredientEntity left, IngredientEntity right)
+        {
+            if (left is null)
+            {
+                if (right is null)
+                {
+                    return true;
+                }
+                return false;
+            }
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(IngredientEntity left, IngredientEntity right)
+        {
+            return !(left == right);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Name, NutritionalValues.GetHashCode()).GetHashCode();
+        }
     }
 }

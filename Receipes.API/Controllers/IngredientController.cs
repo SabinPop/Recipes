@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Recipes.API.Data;
-using Recipes.API.Models.Entities;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Recipes.API.Data;
+using Recipes.API.Models.Entities;
+using Recipes.API.Services.Interfaces;
 
 namespace Recipes.API.Controllers
 {
@@ -12,95 +15,72 @@ namespace Recipes.API.Controllers
     [ApiController]
     public class IngredientController : ControllerBase
     {
-        private readonly RecipesDbContext _context;
+        private readonly IIngredientService _service;
 
-        public IngredientController(RecipesDbContext context)
+        public IngredientController(IIngredientService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: api/Ingredient
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IngredientEntity>>> GetIngredientEntities()
+        public async Task<ActionResult<IEnumerable<IngredientEntity>>> GetIngredients()
         {
-            return await _context.Ingredients.ToListAsync();
+            return await _service.GetAllIngredients().ToListAsync();
         }
 
         // GET: api/Ingredient/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<IngredientEntity>> GetIngredientEntity(int id)
+        public async Task<ActionResult<IngredientEntity>> GetIngredient(int id)
         {
-            var ingredientEntity = await _context.Ingredients.FindAsync(id);
-
-            if (ingredientEntity == null)
-            {
+            var ingredient = await _service.GetIngredientByIdAsync(id);
+            if (ingredient is null)
                 return NotFound();
-            }
-
-            return ingredientEntity;
+            return Ok(ingredient);
         }
 
         // PUT: api/Ingredient/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutIngredientEntity(int id, IngredientEntity ingredientEntity)
+        public IActionResult PutIngredient(IngredientEntity ingredient)
         {
-            if (id != ingredientEntity.IngredientId)
-            {
+            if (_service.Exists(ingredient.IngredientId) == false)
                 return BadRequest();
-            }
 
-            _context.Entry(ingredientEntity).State = EntityState.Modified;
+            var isUpdated = _service.UpdateIngredient(ingredient);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!IngredientEntityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            if (isUpdated)
+                return Ok(ingredient);
+            else
+                return NotFound();
         }
 
         // POST: api/Ingredient
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<IngredientEntity>> PostIngredientEntity(IngredientEntity ingredientEntity)
+        public ActionResult<IngredientEntity> PostIngredient(IngredientEntity ingredient)
         {
-            _context.Ingredients.Add(ingredientEntity);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetIngredientEntity", new { id = ingredientEntity.IngredientId }, ingredientEntity);
+            var isCreated = _service.CreateIngredient(ingredient);
+            if (isCreated)
+                return CreatedAtAction("GetIngredient", new { id = ingredient.IngredientId }, ingredient);
+            else
+                return BadRequest();
         }
 
         // DELETE: api/Ingredient/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteIngredientEntity(int id)
+        public IActionResult DeleteIngredient(int id)
         {
-            var ingredientEntity = await _context.Ingredients.FindAsync(id);
-            if (ingredientEntity == null)
+            var isDeleted = _service.DeleteIngredient(id);
+            if (isDeleted)
+            {
+                return Ok();
+            }
+            else
             {
                 return NotFound();
             }
 
-            _context.Ingredients.Remove(ingredientEntity);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool IngredientEntityExists(int id)
-        {
-            return _context.Ingredients.Any(e => e.IngredientId == id);
         }
     }
 }

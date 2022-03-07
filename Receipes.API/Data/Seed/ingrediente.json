@@ -72210,22 +72210,6 @@
   {
     "IngredientId": 0,
     "IngredientsWithQuantities": null,
-    "Name": "Salam Montana Alpinia",
-    "UseWeight": true,
-    "WeightOfSinglePiece": 0,
-    "NutritionalValues": {
-      "NutritionalValuesId": 0,
-      "Ingredient": null,
-      "IngredientId": 0,
-      "Kilocalories": 257,
-      "Fat": 21.2,
-      "Protein": 16,
-      "Carbs": 0
-    }
-  },
-  {
-    "IngredientId": 0,
-    "IngredientsWithQuantities": null,
     "Name": "Salam Napoli Cris-Tim",
     "UseWeight": true,
     "WeightOfSinglePiece": 0,
