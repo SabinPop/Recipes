@@ -1,21 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Recipes.API.Data;
-using Recipes.API.Data.Seed;
-using Recipes.API.Services;
-using Recipes.API.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Recipes.Server.Data.Seed;
+using Recipes.Server.Services;
+using Recipes.Server.Services.Interfaces;
 
 namespace Recipes.API
 {
@@ -31,7 +24,7 @@ namespace Recipes.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+
 
             services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve);
@@ -41,12 +34,12 @@ namespace Recipes.API
                     Configuration.GetConnectionString("AzureDb")));
 
             // services.AddAutoMapper(typeof(Startup));
-            
+
             services.AddScoped<PopulateIngredientsTableService>();
             services.AddScoped<IIngredientService, IngredientService>();
-            
-            
-            
+
+
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Receipes.API", Version = "v1" });

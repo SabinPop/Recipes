@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IdentityServer4.EntityFramework.Options;
+using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Recipes.Server.Models;
 using Recipes.Server.Models.Entities;
-using System.Diagnostics.CodeAnalysis;
 
-namespace Recipes.API.Data
+namespace Recipes.Server.Data
 {
-    public class RecipesDbContext : DbContext
+    public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
     {
         public virtual DbSet<RecipeEntity> Recipes { get; set; }
         public virtual DbSet<IngredientEntity> Ingredients { get; set; }
@@ -12,16 +15,38 @@ namespace Recipes.API.Data
         public virtual DbSet<RecipeStepEntity> RecipeSteps { get; set; }
         public virtual DbSet<TagEntity> Tags { get; set; }
 
-        public RecipesDbContext([NotNullAttribute] DbContextOptions options) : base(options)
-        {
-        }
+        // users
 
-        protected RecipesDbContext()
+        // public virtual DbSet<ApplicationUser> Users { get; set; }
+
+
+        public ApplicationDbContext(
+            DbContextOptions options,
+            IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(u => u.FavoriteRecipes)
+                .WithMany(fr => fr.UsersWhoLikedThis);
+
+            modelBuilder.Entity<RecipeEntity>()
+                .HasMany(r => r.UsersWhoLikedThis)
+                .WithMany(a => a.FavoriteRecipes);
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(u => u.UserRecipes)
+                .WithOne(ur => ur.Author);
+
+            modelBuilder.Entity<RecipeEntity>()
+                .HasOne(r => r.Author)
+                .WithMany(a => a.UserRecipes)
+                .HasForeignKey(r => r.AuthorId);
+
             modelBuilder.Entity<IngredientWithQuantityEntity>()
                 .HasKey(iq => new { iq.RecipeId, iq.IngredientId });
 
