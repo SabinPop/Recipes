@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/dbrecipes/databases/recipesDB",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:AzureDb",
+      "secretStore": "AzureAppSettings"
+    }
+  }
+}
