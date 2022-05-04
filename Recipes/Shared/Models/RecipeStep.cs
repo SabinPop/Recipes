@@ -10,8 +10,10 @@ namespace Recipes.Shared.Models
     {
         public int StepId { get; set; }
 
-        public string StepTitle { get; set; }
+        public int StepNumber { get; set; }
 
-        public string StepDescription { get; set; }
+        public string StepTitle { get; set; } = string.Empty;
+
+        public string StepDescription { get; set; } = string.Empty;
     }
 }

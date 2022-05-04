@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Recipes.Server.Models.Entities;
 using Recipes.Shared.Models;
+using Recipes.Shared.Models.Recipe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Recipes.Server.Automapper.Profiles
             CreateMap<IngredientEntity, Ingredient>().ReverseMap();
             CreateMap<NutritionalValuesEntity, NutritionalValues>().ReverseMap();
             //CreateMap<IEnumerable<IngredientEntity>, IEnumerable<Ingredient>>().ReverseMap();
+            CreateMap<RecipeEntity, RecipeUpdate>().ReverseMap();
         }
     }
 }

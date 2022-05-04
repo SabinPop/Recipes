@@ -18,7 +18,9 @@
 
 @if (currentIngredientsPage == null)
 {
-    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" />
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="100px" Class="ma-6"/>
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="100px" Class="ma-6"/>
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="100px" Class="ma-6"/>
     //<p><em>Loading...</em></p>
 }
 else
@@ -124,7 +126,7 @@ else
     private PagedList<Ingredient> currentIngredientsPage;
 
 
-    [AllowAnonymous]
+   
     protected override async Task OnInitializedAsync()
     {
         client = ClientFactory.CreateClient("Recipes.Anonymous");

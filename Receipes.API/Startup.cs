@@ -36,7 +36,7 @@ namespace Recipes.API
             // services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<PopulateIngredientsTableService>();
-            services.AddScoped<IIngredientService, IngredientService>();
+            //services.AddScoped<IIngredientService, IngredientService>();
 
 
 

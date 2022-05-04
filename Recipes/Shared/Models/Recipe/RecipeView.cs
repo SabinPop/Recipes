@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Recipes.Shared.Models
+namespace Recipes.Shared.Models.Recipe
 {
-    public class Recipe
+    public class RecipeView
     {
         public int RecipeId { get; set; }
 

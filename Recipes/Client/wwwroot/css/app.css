@@ -1,5 +1,28 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+@keyframes hide{
+    0%{
+        visibility: visible;
+        opacity: 1;
+    }
+    50%{
+        opacity: 0.75;
+        margin-top: 5px !important;
+        margin-bottom: 5px !important;
+    }
+    100%{
+        opacity:0;
+        height: 0px;
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+        visibility: hidden;
+    }
+}
+
+.hide{
+    animation: hide 1.5s forwards !important;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

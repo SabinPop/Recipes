@@ -1,0 +1,47 @@
+﻿@using Recipes.Shared.Models
+
+<MudTextField T="string" Label="Title" For="(() => Title)" @bind-Value="Title"/>
+<MudTextField T="string" Label="Description" For="(() => Description)" @bind-Value="Description" Variant="Variant.Filled" Lines="@Lines" />
+
+@code {
+    private string _title;
+    private string _description;
+
+    [Parameter]
+    public string Title
+    {
+        get => _title;
+        set
+        {
+            if (_title == value)
+                return;
+            _title = value;
+            OnTitleChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public string Description
+    {
+        get => _description;
+        set
+        {
+            if (_description == value)
+                return;
+            _description = value;
+            OnDescriptionChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public int Lines {get;set;} = 3;
+
+
+    [Parameter]
+    public EventCallback<string> OnTitleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnDescriptionChanged { get; set; }
+
+
+}

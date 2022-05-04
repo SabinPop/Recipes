@@ -16,4 +16,5 @@ namespace Recipes.Server.Services.Interfaces
         public IQueryable<T> GetStartingWithString(string name);
         public PagedList<T> GetPage(Parameters parameters);
     }
+
 }

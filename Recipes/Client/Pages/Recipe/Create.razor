@@ -1,0 +1,436 @@
+﻿@page "/recipes/create"
+
+@using Recipes.Shared.Models.Recipe
+@using Recipes.Shared.Models.IngredientWithQuantity
+@using Recipes.Shared.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.WebUtilities
+@using Newtonsoft.Json
+@using System.Diagnostics
+
+@using Client.Components
+
+@inject IHttpClientFactory ClientFactory
+@inject IJSRuntime Js
+
+
+<!-- @using FluentValidation-->
+<MudProgressLinear @ref="@ProgressBar" Color="Color.Secondary" Value="@ProgressValue" Class="@(progressBarClass)" Size="Size.Medium"/>
+<MudCard>
+    <MudForm Model="@model" @ref="@form">
+        <MudCardContent>
+            <MudExpansionPanels MultiExpansion="true">
+                <MudExpansionPanel Text="Recipe Details" @bind-IsExpanded="firstIsExpanded">
+                    <MudTextField @bind-Value="model.Name"
+                                  For="@(() => model.Name)"
+                                  Immediate="true"
+                                  Label="Name"
+                                  Variant="Variant.Filled"></MudTextField>
+                    <MudTextField @bind-Value="model.Description"
+                                  For="@(() => model.Description)"
+                                  Immediate="true"
+                                  Label="Description"
+                                  Variant="Variant.Filled"
+                                  Lines="3"></MudTextField>
+                    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2">
+                        <MudItem xs="12" sm="12" md="6" lg="6">
+                            <MudNumericField @bind-Value="model.DurationInMinutes"
+                                             For="@(() => model.DurationInMinutes)"
+                                             Immediate="true"
+                                             Label="Duration"
+                                             Variant="Variant.Filled"
+                                             Adornment="Adornment.End"
+                                             AdornmentText="minutes"></MudNumericField>
+                        </MudItem>
+                        <MudItem xs="12" sm="12" md="6" lg="6">
+                            <MudNumericField @bind-Value="model.NumberOfServings"
+                                             For="@(() => model.NumberOfServings)"
+                                             Immediate="true"
+                                             Label="Number of servings"
+                                             Variant="Variant.Filled"
+                                             AdornmentIcon="@Icons.Material.Filled.Numbers"></MudNumericField>
+                        </MudItem>
+                    </MudGrid>
+                </MudExpansionPanel>
+                <MudExpansionPanel Text="Ingredients">
+                    <MudAutocomplete @ref="@mudAutocomplete"
+                                     T="Ingredient" Label="Search ingredients"
+                                     @bind-Value="searchValue"
+                                     SearchFunc="@SearchIngredients"
+                                     AdornmentIcon="@Icons.Material.Filled.Search"
+                                     AdornmentColor="Color.Primary"
+                                     ToStringFunc="((x) => x.Name)"
+                                     Variant="Variant.Filled"
+                                     Immediate="false"
+                                     Clearable="true"></MudAutocomplete>
+
+                    <MudTable @ref="@ingredientsTable" T="IngredientWithQuantity"
+                              Items="model.IngredientsWithQuantities"
+                              CanCancelEdit="true"
+                              RowEditPreview="BackupIQ"
+                              RowEditCancel="ResetIQ">
+                        <HeaderContent>
+                            <MudTh>
+                                <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Name)">
+                                    Name
+                                </MudTableSortLabel>
+                            </MudTh>
+                            <MudTh>
+                                <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Quantity)">
+                                    Quantity (grams)
+                                </MudTableSortLabel>
+                            </MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                            <MudTd DataLabel="Quantity (g)">@context.Quantity</MudTd>
+                            <MudTd>
+                                <MudChip Color="MudBlazor.Color.Error"
+                                         Text="Remove"
+                                         OnClick="(() => model.IngredientsWithQuantities.Remove(context))">
+
+                                </MudChip>
+                            </MudTd>
+                        </RowTemplate>
+                        <RowEditingTemplate>
+                            <MudTd DataLabel="Name">@context.Name</MudTd>
+                            <MudTd DataLabel="Quantity">
+                                <MudNumericField Variant="Variant.Filled" @bind-Value="@context.Quantity" Required Min="1"></MudNumericField>
+                            </MudTd>
+                        </RowEditingTemplate>
+
+                    </MudTable>
+                </MudExpansionPanel>
+                <MudExpansionPanel Text="Recipe Steps">
+                    <MudTable @ref="@stepsTable" T="RecipeStep"
+                              Items="model.RecipeSteps"
+                              CanCancelEdit="true"
+                              RowEditPreview="BackupRS"
+                              RowEditCancel="ResetRS">
+                        <HeaderContent>
+                            <MudTh>
+                                Number
+                            </MudTh>
+                            <MudTh>
+                                Title
+                            </MudTh>
+                            <MudTh>
+                                Description
+                            </MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Number">@context.StepNumber</MudTd>
+                            <MudTd DataLabel="Title">@context.StepTitle</MudTd>
+                            <MudTd DataLabel="Description">@context.StepDescription</MudTd>
+                            <MudTd>
+                                <MudChip Color="MudBlazor.Color.Error"
+                                         Text="Remove"
+                                         OnClick="(() => model.RecipeSteps.Remove(context))">
+
+                                </MudChip>
+                            </MudTd>
+                        </RowTemplate>
+                        <RowEditingTemplate>
+                            <MudTd DataLabel="Number">@context.StepNumber</MudTd>
+                            <MudTd DataLabel="Title">
+                                <MudTextField Variant="Variant.Filled" @bind-Value="@context.StepTitle" Required />
+                            </MudTd>
+                            <MudTd DataLabel="Description">
+                                <MudTextField Variant="Variant.Filled" @bind-Value="@context.StepDescription" Lines="3" Required />
+                            </MudTd>
+                        </RowEditingTemplate>
+                        <FooterContent>
+                            <MudTFootRow>
+                                <MudFab OnClick="() => AddStepOnClick()" Class="ma-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
+                            </MudTFootRow>
+                        </FooterContent>
+                     </MudTable>
+                    @*
+                        <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
+                            @foreach (var item in model.RecipeSteps)
+                            {
+                                <MudTimelineItem Color="Color.Primary" Elevation="25" Variant="Variant.Filled">
+                                    <ItemDot>
+                                        <MudMenu Size="Size.Medium" Icon="@Icons.Material.Filled.MoreVert">
+                                            <MudMenuItem>
+                                                <MudButton Variant="Variant.Filled"
+                                                           StartIcon="@Icons.Material.Filled.Delete"
+                                                           Color="Color.Error"
+                                                           OnClick="(() => RemoveStepOnClick(item))">Delete</MudButton>
+                                            </MudMenuItem>
+                                        </MudMenu>
+                                    </ItemDot>
+                                    <ItemContent>
+                                        <Recipes.Client.Components.RecipeStepComp Title="@item.StepTitle"
+                                                                                  Description="@item.StepDescription"
+                                                                                  OnTitleChanged="((e) => item.StepTitle = e)"
+                                                                                  OnDescriptionChanged="((e) => item.StepDescription = e)" />
+                                    </ItemContent>
+                                </MudTimelineItem>
+                            }
+                        </MudTimeline>
+                        <MudFab OnClick="() => AddStepOnClick()" Class="my-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
+</MudExpansionPanel>
+                *@
+                </MudExpansionPanel>
+                <MudExpansionPanel Text="Tags">
+                    recipe Tags
+                </MudExpansionPanel>
+                <MudExpansionPanel Text="Nutritional values">
+                    <MudTable Items="NutritionalValuesDictionary()">
+                        <RowTemplate>
+                            <MudTd>@context.Key</MudTd>
+                            <MudTd>@context.Value</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+
+        </MudCardContent>
+    </MudForm>
+</MudCard>
+
+
+@code {
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    MudForm form;
+
+    MudAutocomplete<Ingredient> mudAutocomplete;
+
+    MudProgressLinear ProgressBar;
+
+    MudTable<IngredientWithQuantity> ingredientsTable;
+    MudTable<RecipeStep> stepsTable;
+
+    RecipeCreate model = new RecipeCreate();
+
+    HashSet<Ingredient> ingredients { get; set; } = new HashSet<Ingredient>();
+
+    HashSet<IngredientWithQuantity> selectedIngredients { get; set; } = new HashSet<IngredientWithQuantity>();
+
+    private HttpClient publicHttpClient;
+
+    private Ingredient _searchValue = new Ingredient();
+
+    private Ingredient searchValue
+    {
+        get
+        {
+            return _searchValue;
+        }
+        set
+        {
+            _searchValue = value;
+            OnSelectChanged();
+        }
+    }
+
+    private IngredientWithQuantity iqBeforeEdit;
+    private RecipeStep rsBeforeEdit;
+
+    private void BackupIQ(object item)
+    {
+        iqBeforeEdit = new IngredientWithQuantity()
+        {
+            Quantity = ((IngredientWithQuantity)item).Quantity
+        };
+    }
+
+    private void BackupRS(object item)
+    {
+        rsBeforeEdit = new RecipeStep()
+        {
+            StepTitle = ((RecipeStep)item).StepTitle,
+            StepDescription = ((RecipeStep)item).StepDescription
+        };
+    }
+
+    private void ResetIQ(object item)
+    {
+        ((IngredientWithQuantity)item).Quantity = iqBeforeEdit.Quantity;
+    }
+
+    private void ResetRS(object item)
+    {
+        ((RecipeStep)item).StepTitle = rsBeforeEdit.StepTitle;
+        ((RecipeStep)item).StepDescription = rsBeforeEdit.StepDescription;
+    }
+
+    private void AddStepOnClick()
+    {
+        if (model.RecipeSteps.Count == 0)
+        {
+            model.RecipeSteps.Add(new RecipeStep() { StepNumber = 1});
+        }
+        else
+        {
+            if (model.RecipeSteps.Last().StepTitle != string.Empty
+                && model.RecipeSteps.Last().StepDescription.Length > 10)
+            {
+                model.RecipeSteps.Add(new RecipeStep() { StepNumber = model.RecipeSteps.Last().StepNumber + 1});
+            }
+        }
+        StateHasChanged();
+    }
+
+    private MetaData _metaData = new MetaData()
+    {
+        PageSize = 240,
+        CurrentPage = 1,
+        TotalCount = 0,
+        TotalPages = 0
+    };
+
+    private double ProgressValue { get; set; } = 1;
+    private bool hiddenProgressBar = false;
+    private string progressBarClass = "my-5";
+
+    private bool firstIsExpanded = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
+        //model.IngredientsWithQuantities = selectedIngredients;
+
+        //Stopwatch stopwatch = new Stopwatch();
+        //stopwatch.Start();
+
+        //for (int i = 0; i < 50; i++) {
+
+        //131.9270999 seconds
+        //  ingredients = await GetAllAsync();
+
+
+        //207.9938999 seconds
+        ingredients = await GetIngredientsAsync();
+        ProgressValue = 100;
+        await HideProgressBar();
+        //}
+        //stopwatch.Stop();
+        //await Js.InvokeVoidAsync("console.log", stopwatch.Elapsed.TotalSeconds);
+    }
+
+    private async Task HideProgressBar()
+    {
+        await Task.Delay(500);
+        hiddenProgressBar = true;
+        progressBarClass += " hide";
+    }
+
+    private Dictionary<string, decimal> NutritionalValuesDictionary()
+    {
+        var x = new Dictionary<string, decimal>();
+        x.Add("Energy", model.NutritionalValues.Kilocalories);
+        x.Add("Protein", model.NutritionalValues.Protein);
+        x.Add("Fat", model.NutritionalValues.Fat);
+        x.Add("Carbs", model.NutritionalValues.Carbs);
+        return x;
+    }
+
+    private void OnSelectChanged()
+    {
+        if (ingredients.Contains(searchValue))
+        {
+            var iq = new IngredientWithQuantity
+            {
+                Ingredient = searchValue,
+                Quantity = 100
+            };
+            model.IngredientsWithQuantities.Add(iq);
+
+            ingredients.Remove(searchValue);
+            searchValue = new Ingredient();
+        }
+    }
+
+    private async Task<HashSet<Ingredient>> GetAllAsync()
+    {
+        var i = new HashSet<Ingredient>();
+        var param = new Dictionary<string, string>
+        {
+            ["pagination"] = "false"
+        };
+        var uri = QueryHelpers.AddQueryString("api/Ingredient", queryString: param);
+        try
+        {
+
+            var response = await publicHttpClient.GetAsync(uri);
+            var content = await response.Content.ReadAsStringAsync();
+            //_metaData = JsonConvert.DeserializeObject<MetaData>(response.Headers.GetValues("X-Pagination").First());
+            i = JsonConvert.DeserializeObject<HashSet<Ingredient>>(content);
+            // await Js.InvokeVoidAsync("console.log", i);
+            // await Js.InvokeVoidAsync("console.log", _metaData);
+            // await Js.InvokeVoidAsync("console.log", ingredients);
+        }
+        catch (Exception)
+        {
+            // NavigationManager.NavigateTo("/");
+        }
+        return i;
+    }
+
+    private async Task<HashSet<Ingredient>> GetIngredientsAsync()
+    {
+
+        List<Task<IEnumerable<Ingredient>>> taskList = new List<Task<IEnumerable<Ingredient>>>();
+
+        var i = new List<Ingredient>();
+        var i_start = await GetIngredientsPageAsync(_metaData);
+        i.AddRange(i_start);
+
+        for (int index = 2; index < _metaData.TotalPages; index ++)
+        {
+            _metaData.CurrentPage = index;
+            taskList.Add(GetIngredientsPageAsync(_metaData));
+            //var i_index = await GetIngredientsPageAsync(_metaData);
+            //i.AddRange(i_index);
+        }
+        var ii = await Task.WhenAll<IEnumerable<Ingredient>>(taskList);
+        foreach(var result in ii)
+        {
+            i.AddRange(result);
+        }
+        return i.ToHashSet();
+    }
+
+    private async Task<IEnumerable<Ingredient>> GetIngredientsPageAsync(MetaData metaData)
+    {
+        var i = new List<Ingredient>();
+        var param = new Dictionary<string, string>()
+        {
+            ["pageSize"] = metaData.PageSize.ToString(),
+            ["pageNumber"] = metaData.CurrentPage.ToString()
+        };
+        var uri = QueryHelpers.AddQueryString("api/Ingredient", queryString: param);
+        try
+        {
+            var response = await publicHttpClient.GetAsync(uri);
+            var content = await response.Content.ReadAsStringAsync();
+
+            _metaData = JsonConvert.DeserializeObject<MetaData>(response.Headers.GetValues("X-Pagination").First());
+
+            var val = _metaData.CurrentPage * 100 / _metaData.TotalPages;
+            ProgressValue = ProgressValue < val ? val : ProgressValue;
+            StateHasChanged();
+
+            i = JsonConvert.DeserializeObject<List<Ingredient>>(content);
+        }
+        catch (Exception)
+        {
+
+        }
+        //StateHasChanged();
+        return i;
+    }
+
+    private async Task<IEnumerable<Ingredient>> SearchIngredients(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return new List<Ingredient>();
+        return ingredients.Where(x =>
+            x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+        );
+    }
+
+}

@@ -11,7 +11,7 @@ namespace Recipes.Shared.Models
 
         public string Name { get; set; }
 
-        public bool UseWeight { get; set; }
+        public bool UseWeight { get; set; } = true;
 
         public decimal WeightOfSinglePiece { get; set; }
 
