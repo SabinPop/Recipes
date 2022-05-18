@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Recipes.Server.Data;
 using Recipes.Server.Models.Entities;
-using Recipes.Shared.Paging;
 using Recipes.Server.Services.Interfaces;
 using Recipes.Shared.Models;
+using Recipes.Shared.Paging;
 using System;
 using System.Linq;
 

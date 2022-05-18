@@ -3,23 +3,29 @@ using Recipes.Server.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace Recipes.Server.Data.Seed
 {
     public class PopulateIngredientsTableService
     {
-        private readonly IIngredientService _ingredientService;
+        private readonly IRepository<IngredientEntity, int> _ingredientService;
 
-        public PopulateIngredientsTableService(IIngredientService ingredientService)
+        public PopulateIngredientsTableService(IRepository<IngredientEntity, int> ingredientService)
         {
             _ingredientService = ingredientService;
-
         }
 
         public void Populate()
         {
-            var ingredients = GetIngredientsFromFile("Data\\Seed\\ingrediente.json");
+            MapperAlimenteIngrediente m = new MapperAlimenteIngrediente();
+            m.LoadFromFile("Data\\Seed\\alimente.json");
+            m.GetIngredientsFromAlimente();
+            m.SaveToFile("Data\\Seed\\ingrediente.json");
+
+            var ingredients = m.Ingredients;
+            //var ingredients = GetIngredientsFromFile("Data\\Seed\\ingrediente.json");
             Console.WriteLine("no of ingredients:");
             Console.WriteLine(ingredients.Count);
             PopulateIngredientTable(ingredients);
@@ -39,9 +45,9 @@ namespace Recipes.Server.Data.Seed
 
         private void PopulateIngredientTable(List<IngredientEntity> ingredients)
         {
-            foreach (var i in ingredients)
+            foreach (var i in ingredients.ToHashSet().OrderBy(x => x.Name))
             {
-                var result = _ingredientService.CreateIngredient(i);
+                var result = _ingredientService.Create(i);
                 if (result)
                 {
                     Console.WriteLine("Adding {0} to the ingredient table", i.Name);

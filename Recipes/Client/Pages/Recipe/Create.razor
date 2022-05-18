@@ -1,22 +1,21 @@
 ﻿@page "/recipes/create"
 
-@using Recipes.Shared.Models.Recipe
-@using Recipes.Shared.Models.IngredientWithQuantity
 @using Recipes.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.WebUtilities
 @using Newtonsoft.Json
+@using Microsoft.AspNetCore.Mvc
 @using System.Diagnostics
 
 @using Client.Components
 
 @inject IHttpClientFactory ClientFactory
 @inject IJSRuntime Js
-
+@inject NavigationManager NavigationManager
 
 <!-- @using FluentValidation-->
 <MudProgressLinear @ref="@ProgressBar" Color="Color.Secondary" Value="@ProgressValue" Class="@(progressBarClass)" Size="Size.Medium"/>
-<MudCard>
+<MudCard Class="mb-5">
     <MudForm Model="@model" @ref="@form">
         <MudCardContent>
             <MudExpansionPanels MultiExpansion="true">
@@ -25,20 +24,21 @@
                                   For="@(() => model.Name)"
                                   Immediate="true"
                                   Label="Name"
-                                  Variant="Variant.Filled"></MudTextField>
+                                  Variant="Variant.Outlined"></MudTextField>
                     <MudTextField @bind-Value="model.Description"
                                   For="@(() => model.Description)"
                                   Immediate="true"
                                   Label="Description"
-                                  Variant="Variant.Filled"
+                                  Variant="Variant.Outlined"
                                   Lines="3"></MudTextField>
                     <MudGrid Justify="Justify.SpaceEvenly" Spacing="2">
                         <MudItem xs="12" sm="12" md="6" lg="6">
                             <MudNumericField @bind-Value="model.DurationInMinutes"
                                              For="@(() => model.DurationInMinutes)"
+                                             Step="5"
                                              Immediate="true"
                                              Label="Duration"
-                                             Variant="Variant.Filled"
+                                             Variant="Variant.Outlined"
                                              Adornment="Adornment.End"
                                              AdornmentText="minutes"></MudNumericField>
                         </MudItem>
@@ -47,14 +47,14 @@
                                              For="@(() => model.NumberOfServings)"
                                              Immediate="true"
                                              Label="Number of servings"
-                                             Variant="Variant.Filled"
+                                             Variant="Variant.Outlined"
                                              AdornmentIcon="@Icons.Material.Filled.Numbers"></MudNumericField>
                         </MudItem>
                     </MudGrid>
                 </MudExpansionPanel>
                 <MudExpansionPanel Text="Ingredients">
                     <MudAutocomplete @ref="@mudAutocomplete"
-                                     T="Ingredient" Label="Search ingredients"
+                                     T="IngredientView" Label="Search ingredients"
                                      @bind-Value="searchValue"
                                      SearchFunc="@SearchIngredients"
                                      AdornmentIcon="@Icons.Material.Filled.Search"
@@ -95,7 +95,7 @@
                         <RowEditingTemplate>
                             <MudTd DataLabel="Name">@context.Name</MudTd>
                             <MudTd DataLabel="Quantity">
-                                <MudNumericField Variant="Variant.Filled" @bind-Value="@context.Quantity" Required Min="1"></MudNumericField>
+                                <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Quantity" Required Min="1"></MudNumericField>
                             </MudTd>
                         </RowEditingTemplate>
 
@@ -133,48 +133,57 @@
                         <RowEditingTemplate>
                             <MudTd DataLabel="Number">@context.StepNumber</MudTd>
                             <MudTd DataLabel="Title">
-                                <MudTextField Variant="Variant.Filled" @bind-Value="@context.StepTitle" Required />
+                                <MudTextField Variant="Variant.Outlined" @bind-Value="@context.StepTitle" Required />
                             </MudTd>
                             <MudTd DataLabel="Description">
-                                <MudTextField Variant="Variant.Filled" @bind-Value="@context.StepDescription" Lines="3" Required />
+                                <MudTextField Variant="Variant.Outlined" @bind-Value="@context.StepDescription" Lines="3" Required />
                             </MudTd>
                         </RowEditingTemplate>
-                        <FooterContent>
-                            <MudTFootRow>
-                                <MudFab OnClick="() => AddStepOnClick()" Class="ma-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
-                            </MudTFootRow>
-                        </FooterContent>
-                     </MudTable>
+                    </MudTable>
+                    <MudDivider DividerType="DividerType.Middle" Class="my-3" />
+                    <MudFab OnClick="() => AddStepOnClick()" Class="ma-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
                     @*
-                        <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
-                            @foreach (var item in model.RecipeSteps)
-                            {
-                                <MudTimelineItem Color="Color.Primary" Elevation="25" Variant="Variant.Filled">
-                                    <ItemDot>
-                                        <MudMenu Size="Size.Medium" Icon="@Icons.Material.Filled.MoreVert">
-                                            <MudMenuItem>
-                                                <MudButton Variant="Variant.Filled"
-                                                           StartIcon="@Icons.Material.Filled.Delete"
-                                                           Color="Color.Error"
-                                                           OnClick="(() => RemoveStepOnClick(item))">Delete</MudButton>
-                                            </MudMenuItem>
-                                        </MudMenu>
-                                    </ItemDot>
-                                    <ItemContent>
-                                        <Recipes.Client.Components.RecipeStepComp Title="@item.StepTitle"
-                                                                                  Description="@item.StepDescription"
-                                                                                  OnTitleChanged="((e) => item.StepTitle = e)"
-                                                                                  OnDescriptionChanged="((e) => item.StepDescription = e)" />
-                                    </ItemContent>
-                                </MudTimelineItem>
-                            }
-                        </MudTimeline>
-                        <MudFab OnClick="() => AddStepOnClick()" Class="my-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
-</MudExpansionPanel>
-                *@
+                                <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
+                                    @foreach (var item in model.RecipeSteps)
+                                    {
+                                        <MudTimelineItem Color="Color.Primary" Elevation="25" Variant="Variant.Filled">
+                                            <ItemDot>
+                                                <MudMenu Size="Size.Medium" Icon="@Icons.Material.Filled.MoreVert">
+                                                    <MudMenuItem>
+                                                        <MudButton Variant="Variant.Filled"
+                                                                   StartIcon="@Icons.Material.Filled.Delete"
+                                                                   Color="Color.Error"
+                                                                   OnClick="(() => RemoveStepOnClick(item))">Delete</MudButton>
+                                                    </MudMenuItem>
+                                                </MudMenu>
+                                            </ItemDot>
+                                            <ItemContent>
+                                                <Recipes.Client.Components.RecipeStepComp Title="@item.StepTitle"
+                                                                                          Description="@item.StepDescription"
+                                                                                          OnTitleChanged="((e) => item.StepTitle = e)"
+                                                                                          OnDescriptionChanged="((e) => item.StepDescription = e)" />
+                                            </ItemContent>
+                                        </MudTimelineItem>
+                                    }
+                                </MudTimeline>
+                                <MudFab OnClick="() => AddStepOnClick()" Class="my-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
+        </MudExpansionPanel>
+                    *@
                 </MudExpansionPanel>
                 <MudExpansionPanel Text="Tags">
-                    recipe Tags
+                    <MudChipSet Mandatory="true" OnClose="ClosedChip" AllClosable="true">
+                        @foreach(var item in model.GetTagsFromNutritionalValues()){
+                            <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Secondary" DisableRipple="true" Default="true"></MudChip>
+                        }
+                        @foreach(var item in model.Tags)
+                        {
+                            <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Primary" DisableRipple="true"></MudChip>
+                        }
+                    </MudChipSet>
+
+                    <MudTextField @ref="addTagTextField" T="string" Label="Add a tag" Variant="Variant.Outlined" 
+                                  Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Add" 
+                                  OnAdornmentClick="AddTag" Validation="new Func<string, bool>(TagValidation)" />
                 </MudExpansionPanel>
                 <MudExpansionPanel Text="Nutritional values">
                     <MudTable Items="NutritionalValuesDictionary()">
@@ -190,13 +199,16 @@
     </MudForm>
 </MudCard>
 
+<MudFab Label="Create recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Done" 
+        Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px" 
+        OnClick="Post" />
 
 @code {
     [Inject] ISnackbar Snackbar { get; set; }
 
     MudForm form;
 
-    MudAutocomplete<Ingredient> mudAutocomplete;
+    MudAutocomplete<IngredientView> mudAutocomplete;
 
     MudProgressLinear ProgressBar;
 
@@ -205,15 +217,15 @@
 
     RecipeCreate model = new RecipeCreate();
 
-    HashSet<Ingredient> ingredients { get; set; } = new HashSet<Ingredient>();
+    HashSet<IngredientView> ingredients { get; set; } = new HashSet<IngredientView>();
 
     HashSet<IngredientWithQuantity> selectedIngredients { get; set; } = new HashSet<IngredientWithQuantity>();
 
     private HttpClient publicHttpClient;
 
-    private Ingredient _searchValue = new Ingredient();
+    private IngredientView _searchValue = new IngredientView();
 
-    private Ingredient searchValue
+    private IngredientView searchValue
     {
         get
         {
@@ -223,6 +235,47 @@
         {
             _searchValue = value;
             OnSelectChanged();
+        }
+    }
+
+    private async void Post()
+    {
+        // model.AuthorId = "anon";
+        foreach (var item in model.GetTagsFromNutritionalValues())
+        {
+            model.Tags.Add(item);
+        }
+        var response = await publicHttpClient.PostAsJsonAsync("api/Recipe", model);
+        if (response.IsSuccessStatusCode)
+        {
+            var location = response.Headers.GetValues("Location").First();
+            Snackbar.Add("Recipe succesfully posted at " + location, Severity.Success);
+            await Task.Delay(1000);
+            var id = location.Split('/').Last();
+            NavigationManager.NavigateTo(NavigationManager.BaseUri + "/recipes/view/" + id);
+        }
+        else
+        {
+            Snackbar.Add("Unable to post the recipe", Severity.Error);
+        }
+    }
+
+    private MudTextField<string> addTagTextField;
+
+    private bool TagValidation(string value) => !string.IsNullOrWhiteSpace(value) && value.Length >= 3;
+
+    private void ClosedChip(MudChip chip)
+    {
+        model.Tags.RemoveWhere(x => x.Name == chip.Text);
+    }
+
+    private void AddTag()
+    {
+        if (TagValidation(addTagTextField.Text))
+        {
+            model.Tags.Add(new TagEdit() { Name = addTagTextField.Text.ToLower() });
+            addTagTextField.SetText("");
+            addTagTextField.ResetValidation();
         }
     }
 
@@ -283,7 +336,7 @@
     };
 
     private double ProgressValue { get; set; } = 1;
-    private bool hiddenProgressBar = false;
+
     private string progressBarClass = "my-5";
 
     private bool firstIsExpanded = true;
@@ -314,7 +367,7 @@
     private async Task HideProgressBar()
     {
         await Task.Delay(500);
-        hiddenProgressBar = true;
+
         progressBarClass += " hide";
     }
 
@@ -340,7 +393,7 @@
             model.IngredientsWithQuantities.Add(iq);
 
             ingredients.Remove(searchValue);
-            searchValue = new Ingredient();
+            searchValue = new IngredientView();
         }
     }
 
@@ -370,12 +423,12 @@
         return i;
     }
 
-    private async Task<HashSet<Ingredient>> GetIngredientsAsync()
+    private async Task<HashSet<IngredientView>> GetIngredientsAsync()
     {
 
-        List<Task<IEnumerable<Ingredient>>> taskList = new List<Task<IEnumerable<Ingredient>>>();
+        List<Task<IEnumerable<IngredientView>>> taskList = new List<Task<IEnumerable<IngredientView>>>();
 
-        var i = new List<Ingredient>();
+        var i = new List<IngredientView>();
         var i_start = await GetIngredientsPageAsync(_metaData);
         i.AddRange(i_start);
 
@@ -386,7 +439,7 @@
             //var i_index = await GetIngredientsPageAsync(_metaData);
             //i.AddRange(i_index);
         }
-        var ii = await Task.WhenAll<IEnumerable<Ingredient>>(taskList);
+        var ii = await Task.WhenAll<IEnumerable<IngredientView>>(taskList);
         foreach(var result in ii)
         {
             i.AddRange(result);
@@ -394,9 +447,9 @@
         return i.ToHashSet();
     }
 
-    private async Task<IEnumerable<Ingredient>> GetIngredientsPageAsync(MetaData metaData)
+    private async Task<IEnumerable<IngredientView>> GetIngredientsPageAsync(MetaData metaData)
     {
-        var i = new List<Ingredient>();
+        var i = new List<IngredientView>();
         var param = new Dictionary<string, string>()
         {
             ["pageSize"] = metaData.PageSize.ToString(),
@@ -414,7 +467,7 @@
             ProgressValue = ProgressValue < val ? val : ProgressValue;
             StateHasChanged();
 
-            i = JsonConvert.DeserializeObject<List<Ingredient>>(content);
+            i = JsonConvert.DeserializeObject<List<IngredientView>>(content);
         }
         catch (Exception)
         {
@@ -424,13 +477,12 @@
         return i;
     }
 
-    private async Task<IEnumerable<Ingredient>> SearchIngredients(string value)
+    private async Task<IEnumerable<IngredientView>> SearchIngredients(string value)
     {
         if (string.IsNullOrEmpty(value))
-            return new List<Ingredient>();
-        return ingredients.Where(x =>
-            x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
-        );
+            return await Task.FromResult<IEnumerable<IngredientView>>(new List<IngredientView>());
+        return await Task.FromResult<IEnumerable<IngredientView>>(ingredients.Where(x =>
+            x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)));
     }
 
 }

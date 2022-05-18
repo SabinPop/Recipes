@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -8,12 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Recipes.Server.Automapper.Profiles;
 using Recipes.Server.Data;
+using Recipes.Server.Data.Seed;
 using Recipes.Server.Models;
+using Recipes.Server.Models.Entities;
 using Recipes.Server.Services;
 using Recipes.Server.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
-using Newtonsoft.Json;
-using Recipes.Server.Models.Entities;
 
 namespace Recipes.Server
 {
@@ -32,12 +30,18 @@ namespace Recipes.Server
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("AzureDb")));
-
-
-            services.AddScoped<IRepository<IngredientEntity,int>, IngredientService>();
+                    Configuration.GetConnectionString("AWS")));
+                    //Configuration.GetConnectionString("AzureDb")));
 
             services.AddAutoMapper(typeof(RecipeProfile));
+
+            services.AddScoped<IRepository<IngredientEntity, int>, IngredientService>();
+            services.AddScoped<IRepository<RecipeEntity, int>, RecipeService>();
+            services.AddScoped<IRepository<TagEntity, int>, TagService>();
+
+            services.AddTransient<PopulateIngredientsTableService>();
+
+
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 

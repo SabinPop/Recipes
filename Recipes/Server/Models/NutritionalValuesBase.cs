@@ -2,18 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Recipes.Server.Models.Entities
+namespace Recipes.Server.Models
 {
-    public class NutritionalValuesEntity : IEquatable<NutritionalValuesEntity>
+    public class NutritionalValuesBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int NutritionalValuesId { get; set; }
-
-        public IngredientEntity Ingredient { get; set; }
-
-        [ForeignKey(nameof(IngredientId))]
-        public int IngredientId { get; set; }
 
         [Range(1, 900)]
         [Column(TypeName = "decimal(5, 1)")]
@@ -31,7 +26,7 @@ namespace Recipes.Server.Models.Entities
         [Column(TypeName = "decimal(5, 1)")]
         public decimal Carbs { get; set; }
 
-        public bool Equals(NutritionalValuesEntity other)
+        public bool Equals(NutritionalValuesBase other)
         {
             if (other is null)
                 return false;
@@ -47,10 +42,10 @@ namespace Recipes.Server.Models.Entities
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as NutritionalValuesEntity);
+            return Equals(obj as NutritionalValuesBase);
         }
 
-        public static bool operator ==(NutritionalValuesEntity left, NutritionalValuesEntity right)
+        public static bool operator ==(NutritionalValuesBase left, NutritionalValuesBase right)
         {
             if (left is null)
             {
@@ -61,7 +56,7 @@ namespace Recipes.Server.Models.Entities
             return left.Equals(right);
         }
 
-        public static bool operator !=(NutritionalValuesEntity left, NutritionalValuesEntity right)
+        public static bool operator !=(NutritionalValuesBase left, NutritionalValuesBase right)
         {
             return !(left == right);
         }

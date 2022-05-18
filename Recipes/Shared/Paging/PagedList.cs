@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Recipes.Shared.Paging
 {
     public class PagedList<T> : List<T>
-    {       
+    {
         public MetaData MetaData { get; set; }
 
         public PagedList(MetaData metaData) : base()

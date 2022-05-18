@@ -45,7 +45,7 @@ namespace Recipes.Server.Data.Seed
                 var ingredient = new IngredientEntity()
                 {
                     Name = aliment.Nume,
-                    NutritionalValues = new NutritionalValuesEntity()
+                    NutritionalValues = new NutritionalValuesIngredientEntity()
                     {
                         Kilocalories = (decimal)aliment.Calorii,
                         Protein = Convert.ToDecimal(aliment.Proteine == "" ? 0 : aliment.Proteine.Contains("%") ? aliment.Proteine.Replace("%", "") : aliment.Proteine),

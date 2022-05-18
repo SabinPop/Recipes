@@ -8,7 +8,7 @@ namespace Recipes.API.Data
     {
         public virtual DbSet<RecipeEntity> Recipes { get; set; }
         public virtual DbSet<IngredientEntity> Ingredients { get; set; }
-        public virtual DbSet<NutritionalValuesEntity> NutritionalValues { get; set; }
+        public virtual DbSet<NutritionalValuesIngredientEntity> NutritionalValues { get; set; }
         public virtual DbSet<RecipeStepEntity> RecipeSteps { get; set; }
         public virtual DbSet<TagEntity> Tags { get; set; }
 
@@ -70,10 +70,10 @@ namespace Recipes.API.Data
                 .HasOne(i => i.NutritionalValues)
                 .WithOne(nv => nv.Ingredient);
 
-            modelBuilder.Entity<NutritionalValuesEntity>()
+            modelBuilder.Entity<NutritionalValuesIngredientEntity>()
                 .HasOne(nv => nv.Ingredient)
                 .WithOne(i => i.NutritionalValues)
-                .HasForeignKey<NutritionalValuesEntity>(nv => nv.IngredientId);
+                .HasForeignKey<NutritionalValuesIngredientEntity>(nv => nv.IngredientId);
 
             modelBuilder.Entity<IngredientEntity>()
                 .HasIndex(i => i.Name)

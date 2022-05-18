@@ -1,8 +1,9 @@
 ﻿@using Recipes.Shared.Models
 
-<MudTextField T="string" Label="Title" For="(() => Title)" @bind-Value="Title"/>
-<MudTextField T="string" Label="Description" For="(() => Description)" @bind-Value="Description" Variant="Variant.Filled" Lines="@Lines" />
-
+<MudPaper Elevation="2">
+    <MudTextField ReadOnly="@ReadOnly" T="string" Label="Step title" For="(() => Title)" @bind-Value="Title" Variant="@SelectedVariant" />
+    <MudTextField ReadOnly="@ReadOnly" T="string" Label="Step description" For="(() => Description)" @bind-Value="Description" Variant="@SelectedVariant" Lines="@Lines" />
+</MudPaper>
 @code {
     private string _title;
     private string _description;
@@ -34,8 +35,13 @@
     }
 
     [Parameter]
-    public int Lines {get;set;} = 3;
+    public int Lines {get;set;} = 5;
 
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public Variant SelectedVariant { get; set; } = Variant.Outlined;
 
     [Parameter]
     public EventCallback<string> OnTitleChanged { get; set; }

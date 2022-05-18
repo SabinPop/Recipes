@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Recipes.Server.Models.Entities
 {
-    public class IngredientEntity : IEquatable<IngredientEntity>
+    public class IngredientEntity //: IEquatable<IngredientEntity>
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -26,7 +26,7 @@ namespace Recipes.Server.Models.Entities
         [Column(TypeName = "decimal(6, 1)")]
         public decimal WeightOfSinglePiece { get; set; }
 
-        public NutritionalValuesEntity NutritionalValues { get; set; }
+        public NutritionalValuesIngredientEntity NutritionalValues { get; set; }
 
         public bool Equals(IngredientEntity other)
         {

@@ -34,36 +34,17 @@ namespace Recipes.Server.Models.Entities
         public string ImageUrl { get; set; }
 
 
-        public ApplicationUser Author { get; set; }
-        
-        [ForeignKey(nameof(AuthorId))]
-        public string AuthorId { get; set; }
-
-        public virtual ICollection<ApplicationUser> UsersWhoLikedThis { get; set; }
+        // public ApplicationUser Author { get; set; }
 
 
-        public virtual ICollection<IngredientWithQuantityEntity> IngredientsWithQuantities { get; set; }
-        public virtual ICollection<RecipeStepEntity> RecipeSteps { get; set; }
+        // public virtual ICollection<ApplicationUser> UsersWhoLikedThis { get; set; }
 
-        public virtual ICollection<TagEntity> Tags { get; set; }
 
-        public NutritionalValuesEntity NutritionalValues { get => CalculateFromIngredients(); }
+        public HashSet<IngredientWithQuantityEntity> IngredientsWithQuantities { get; set; }
+        public List<RecipeStepEntity> RecipeSteps { get; set; }
 
-        private NutritionalValuesEntity CalculateFromIngredients()
-        {
-            NutritionalValuesEntity nutritionalValues = new NutritionalValuesEntity();
-            foreach (var ingredient in IngredientsWithQuantities)
-            {
-                nutritionalValues.Kilocalories += ingredient.Ingredient.NutritionalValues.Kilocalories * ingredient.Quantity
-                    * (ingredient.Ingredient.UseWeight ? 1 : ingredient.Ingredient.WeightOfSinglePiece);
-                nutritionalValues.Carbs += ingredient.Ingredient.NutritionalValues.Carbs * ingredient.Quantity
-                    * (ingredient.Ingredient.UseWeight ? 1 : ingredient.Ingredient.WeightOfSinglePiece);
-                nutritionalValues.Fat += ingredient.Ingredient.NutritionalValues.Fat * ingredient.Quantity
-                    * (ingredient.Ingredient.UseWeight ? 1 : ingredient.Ingredient.WeightOfSinglePiece);
-                nutritionalValues.Protein += ingredient.Ingredient.NutritionalValues.Protein * ingredient.Quantity
-                    * (ingredient.Ingredient.UseWeight ? 1 : ingredient.Ingredient.WeightOfSinglePiece);
-            }
-            return nutritionalValues;
-        }
+        public HashSet<TagEntity> Tags { get; set; }
+
+        public NutritionalValuesRecipeEntity NutritionalValues { get; set; }
     }
 }

@@ -1,0 +1,58 @@
+﻿@using Recipes.Shared.Models
+
+<MudItem xs="12" sm="6" md="4" lg="4" xl="3" xxl="2">
+    <MudPaper Elevation="3">
+        <MudCard>
+            <MudCardHeader>
+                <MudLink Href="@Href">
+                    <MudText Typo="Typo.h5">
+                        @RecipeDetails.Name
+                    </MudText>
+                </MudLink>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid Justify="Justify.FlexStart" Spacing="2">
+                    <MudItem xs="12" sm="12" md="12" lg="6">
+                        <MudField Label="Duration" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Timer" Variant="Variant.Outlined">
+                            @RecipeDetails.DurationInMinutes minutes
+                        </MudField>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12" lg="6">
+                        <MudField Label="Number of servings" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Numbers" Variant="Variant.Outlined">
+                            @RecipeDetails.NumberOfServings servings
+                        </MudField>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="12" lg="6">
+                        <MudField Label="Creation date" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EditCalendar" Variant="Variant.Outlined">
+                            @RecipeDetails.CreationDate.Date.ToShortDateString()
+                        </MudField>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+            <MudCardActions>
+                <MudChipSet Class="overflow-y-scroll" Style="white-space: nowrap;">
+                    @foreach (var tag in RecipeDetails.Tags)
+                    {
+                        <MudChip Variant="Variant.Outlined" Text="@tag.Name" Color="Color.Secondary" 
+                                  DisableRipple="true">
+
+                        </MudChip>
+                    }
+                </MudChipSet>
+            </MudCardActions>
+        </MudCard>
+    </MudPaper>
+</MudItem>
+
+@code {
+    [Parameter]
+    public RecipeDetails RecipeDetails { get; set; }
+
+    private string Href { get => "/recipes/view/" + RecipeDetails.RecipeId; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+
+    }
+}

@@ -3,36 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Recipes.Server.Data;
 
-namespace Recipes.Server.Data.Migrations
+namespace Recipes.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220510164410_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.14")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("ApplicationUserRecipeEntity", b =>
-                {
-                    b.Property<int>("FavoriteRecipesRecipeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsersWhoLikedThisId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("FavoriteRecipesRecipeId", "UsersWhoLikedThisId");
-
-                    b.HasIndex("UsersWhoLikedThisId");
-
-                    b.ToTable("ApplicationUserRecipeEntity");
-                });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
                 {
@@ -396,7 +383,7 @@ namespace Recipes.Server.Data.Migrations
                     b.ToTable("IngredientWithQuantityEntity");
                 });
 
-            modelBuilder.Entity("Recipes.Server.Models.Entities.NutritionalValuesEntity", b =>
+            modelBuilder.Entity("Recipes.Server.Models.Entities.NutritionalValuesIngredientEntity", b =>
                 {
                     b.Property<int>("NutritionalValuesId")
                         .ValueGeneratedOnAdd()
@@ -426,15 +413,42 @@ namespace Recipes.Server.Data.Migrations
                     b.ToTable("NutritionalValues");
                 });
 
+            modelBuilder.Entity("Recipes.Server.Models.Entities.NutritionalValuesRecipeEntity", b =>
+                {
+                    b.Property<int>("NutritionalValuesId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<decimal>("Carbs")
+                        .HasColumnType("decimal(5,1)");
+
+                    b.Property<decimal>("Fat")
+                        .HasColumnType("decimal(5,1)");
+
+                    b.Property<decimal>("Kilocalories")
+                        .HasColumnType("decimal(5,1)");
+
+                    b.Property<decimal>("Protein")
+                        .HasColumnType("decimal(5,1)");
+
+                    b.Property<int>("RecipeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NutritionalValuesId");
+
+                    b.HasIndex("RecipeId")
+                        .IsUnique();
+
+                    b.ToTable("NutritionalValuesRecipeEntity");
+                });
+
             modelBuilder.Entity("Recipes.Server.Models.Entities.RecipeEntity", b =>
                 {
                     b.Property<int>("RecipeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AuthorId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
@@ -458,8 +472,6 @@ namespace Recipes.Server.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("RecipeId");
-
-                    b.HasIndex("AuthorId");
 
                     b.ToTable("Recipes");
                 });
@@ -503,21 +515,6 @@ namespace Recipes.Server.Data.Migrations
                     b.HasKey("TagId");
 
                     b.ToTable("Tags");
-                });
-
-            modelBuilder.Entity("ApplicationUserRecipeEntity", b =>
-                {
-                    b.HasOne("Recipes.Server.Models.Entities.RecipeEntity", null)
-                        .WithMany()
-                        .HasForeignKey("FavoriteRecipesRecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Recipes.Server.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsersWhoLikedThisId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -605,24 +602,26 @@ namespace Recipes.Server.Data.Migrations
                     b.Navigation("Recipe");
                 });
 
-            modelBuilder.Entity("Recipes.Server.Models.Entities.NutritionalValuesEntity", b =>
+            modelBuilder.Entity("Recipes.Server.Models.Entities.NutritionalValuesIngredientEntity", b =>
                 {
                     b.HasOne("Recipes.Server.Models.Entities.IngredientEntity", "Ingredient")
                         .WithOne("NutritionalValues")
-                        .HasForeignKey("Recipes.Server.Models.Entities.NutritionalValuesEntity", "IngredientId")
+                        .HasForeignKey("Recipes.Server.Models.Entities.NutritionalValuesIngredientEntity", "IngredientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Ingredient");
                 });
 
-            modelBuilder.Entity("Recipes.Server.Models.Entities.RecipeEntity", b =>
+            modelBuilder.Entity("Recipes.Server.Models.Entities.NutritionalValuesRecipeEntity", b =>
                 {
-                    b.HasOne("Recipes.Server.Models.ApplicationUser", "Author")
-                        .WithMany("UserRecipes")
-                        .HasForeignKey("AuthorId");
+                    b.HasOne("Recipes.Server.Models.Entities.RecipeEntity", "Recipe")
+                        .WithOne("NutritionalValues")
+                        .HasForeignKey("Recipes.Server.Models.Entities.NutritionalValuesRecipeEntity", "RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Author");
+                    b.Navigation("Recipe");
                 });
 
             modelBuilder.Entity("Recipes.Server.Models.Entities.RecipeStepEntity", b =>
@@ -636,11 +635,6 @@ namespace Recipes.Server.Data.Migrations
                     b.Navigation("Recipe");
                 });
 
-            modelBuilder.Entity("Recipes.Server.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("UserRecipes");
-                });
-
             modelBuilder.Entity("Recipes.Server.Models.Entities.IngredientEntity", b =>
                 {
                     b.Navigation("IngredientsWithQuantities");
@@ -651,6 +645,8 @@ namespace Recipes.Server.Data.Migrations
             modelBuilder.Entity("Recipes.Server.Models.Entities.RecipeEntity", b =>
                 {
                     b.Navigation("IngredientsWithQuantities");
+
+                    b.Navigation("NutritionalValues");
 
                     b.Navigation("RecipeSteps");
                 });

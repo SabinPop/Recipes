@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Recipes.Server.Services.Interfaces;
-using Recipes.Server.Models.Entities;
-using System.Collections.Generic;
-using AutoMapper;
-using Recipes.Shared.Models;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Recipes.Server.Models.Entities;
+using Recipes.Server.Services.Interfaces;
+using Recipes.Shared.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Recipes.Shared.Models.Recipe;
 
 namespace Recipes.Server.Controllers
 {
@@ -27,9 +26,9 @@ namespace Recipes.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] Parameters parameters)
         {
-            if(parameters.Pagination == false)
+            if (parameters.Pagination == false)
             {
-                var recipes = await _service.GetAll().ToListAsync();
+                var recipes = _mapper.Map<List<RecipeDetails>>(_service.GetAll());
                 return Ok(recipes);
             }
             else
@@ -59,13 +58,15 @@ namespace Recipes.Server.Controllers
         {
             if (_service.Exists(id) == false)
                 return NotFound();
-            return Ok(_mapper.Map<RecipeView>(_service.GetById(id)));
+            return Ok(
+                _mapper.Map<RecipeView>(
+                _service.GetById(id)));
         }
 
         // PUT: api/Recipe/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public IActionResult PutRecipe(RecipeUpdate recipe)
+        public IActionResult PutRecipe(RecipeEdit recipe)
         {
             var result = _service.Update(_mapper.Map<RecipeEntity>(recipe));
             if (result)
@@ -78,9 +79,15 @@ namespace Recipes.Server.Controllers
         [HttpPost]
         public IActionResult PostRecipe(RecipeCreate recipe)
         {
-            var result = _service.Create(_mapper.Map<RecipeEntity>(recipe));
+            var r = _mapper.Map<RecipeEntity>(recipe);
+            //get recipe json 
+            var json = JsonConvert.SerializeObject(recipe);
+            var result = _service.Create(r);
             if (result)
-                return CreatedAtAction("GetRecipe", new { id = _mapper.Map<RecipeView>(recipe).RecipeId }, recipe);
+            {
+                var recipeView = _mapper.Map<RecipeView>(r);
+                return CreatedAtAction(nameof(GetRecipe), new { id = _mapper.Map<RecipeView>(r).RecipeId }, recipeView);
+            }
             return BadRequest();
         }
 

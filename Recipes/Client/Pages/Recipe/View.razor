@@ -1,0 +1,21 @@
+﻿@page "/recipes/view/{id:int}"
+
+@using Microsoft.AspNetCore.Authorization
+@using Recipes.Client.Components
+
+<Recipe Id="Id">
+
+</Recipe>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+}

@@ -11,7 +11,8 @@ namespace Recipes.Server.Data
     {
         public virtual DbSet<RecipeEntity> Recipes { get; set; }
         public virtual DbSet<IngredientEntity> Ingredients { get; set; }
-        public virtual DbSet<NutritionalValuesEntity> NutritionalValues { get; set; }
+        public virtual DbSet<NutritionalValuesIngredientEntity> NutritionalValuesIngredient { get; set; }
+        public virtual DbSet<NutritionalValuesRecipeEntity> NutritionalValuesRecipe { get; set; }
         public virtual DbSet<RecipeStepEntity> RecipeSteps { get; set; }
         public virtual DbSet<TagEntity> Tags { get; set; }
 
@@ -30,6 +31,7 @@ namespace Recipes.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            /*
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.FavoriteRecipes)
                 .WithMany(fr => fr.UsersWhoLikedThis);
@@ -47,12 +49,22 @@ namespace Recipes.Server.Data
                 .WithMany(a => a.UserRecipes)
                 .HasForeignKey(r => r.AuthorId);
 
+            */
+
             modelBuilder.Entity<IngredientWithQuantityEntity>()
                 .HasKey(iq => new { iq.RecipeId, iq.IngredientId });
 
+
             modelBuilder.Entity<IngredientWithQuantityEntity>()
                 .HasOne(iq => iq.Ingredient)
-                .WithMany(i => i.IngredientsWithQuantities);
+                .WithMany(i => i.IngredientsWithQuantities)
+                .HasForeignKey(iq => iq.IngredientId);
+
+            modelBuilder.Entity<IngredientWithQuantityEntity>()
+                .HasOne(iq => iq.Recipe)
+                .WithMany(r => r.IngredientsWithQuantities)
+                .HasForeignKey(iq => iq.RecipeId);
+
 
             modelBuilder.Entity<IngredientEntity>()
                 .HasMany(i => i.IngredientsWithQuantities)
@@ -62,9 +74,7 @@ namespace Recipes.Server.Data
                 .HasMany(r => r.IngredientsWithQuantities)
                 .WithOne(iq => iq.Recipe);
 
-            modelBuilder.Entity<IngredientWithQuantityEntity>()
-                .HasOne(iq => iq.Recipe)
-                .WithMany(r => r.IngredientsWithQuantities);
+
 
             modelBuilder.Entity<RecipeEntity>()
                 .HasMany(r => r.RecipeSteps)
@@ -95,11 +105,24 @@ namespace Recipes.Server.Data
                 .HasOne(i => i.NutritionalValues)
                 .WithOne(nv => nv.Ingredient);
 
-            modelBuilder.Entity<NutritionalValuesEntity>()
+            modelBuilder.Entity<NutritionalValuesIngredientEntity>()
                 .HasOne(nv => nv.Ingredient)
                 .WithOne(i => i.NutritionalValues)
-                .HasForeignKey<NutritionalValuesEntity>(nv => nv.IngredientId);
+                .HasForeignKey<NutritionalValuesIngredientEntity>(nv => nv.IngredientId);
 
+            /////
+
+            modelBuilder.Entity<RecipeEntity>()
+                .HasOne(r => r.NutritionalValues)
+                .WithOne(nv => nv.Recipe);
+
+            modelBuilder.Entity<NutritionalValuesRecipeEntity>()
+                .HasOne(nv => nv.Recipe)
+                .WithOne(r => r.NutritionalValues)
+                .HasForeignKey<NutritionalValuesRecipeEntity>(nv => nv.RecipeId);
+
+            /////
+            ///
             modelBuilder.Entity<IngredientEntity>()
                 .HasIndex(i => i.Name)
                 .IsUnique();

@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Recipes.Shared.Models.Recipe
+namespace Recipes.Shared.Models
 {
-    public class RecipeView
+    public class RecipeView : Recipe
     {
+        // I actually don't know if I need this
         public int RecipeId { get; set; }
 
-        public string Name { get; set; }
-
-        public string Description { get; set; }
-
-        public DateTime CreationDate { get; set; }
-
-        public int DurationInMinutes { get; set; }
-
-        public int NumberOfServings { get; set; }
-
-
+        public Dictionary<string, decimal> NutritionalValuesDictionary()
+        {
+            var x = new Dictionary<string, decimal>
+            {
+                { "Energy", NutritionalValues.Kilocalories },
+                { "Protein", NutritionalValues.Protein },
+                { "Fat", NutritionalValues.Fat },
+                { "Carbs", NutritionalValues.Carbs }
+            };
+            return x;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Recipes.Server.Data.Seed;
 using Recipes.Server.Models.Entities;
 using Recipes.Server.Services.Interfaces;
 using System.Collections.Generic;
@@ -9,25 +10,30 @@ namespace Recipes.Server.Controllers
     [ApiController]
     public class TagController : ControllerBase
     {
-        private readonly ITagService _service;
+        private readonly IRepository<TagEntity, int> _service;
 
-        public TagController(ITagService service)
+
+        private readonly PopulateIngredientsTableService tableService;
+
+        public TagController(IRepository<TagEntity, int> service, PopulateIngredientsTableService tableService)
         {
             _service = service;
+            this.tableService = tableService;
         }
 
         // GET: api/Tag
         [HttpGet]
         public ActionResult<IEnumerable<TagEntity>> GetTags()
         {
-            return Ok(_service.GetAllTags());
+            //tableService.Populate();
+            return Ok(_service.GetAll());
         }
 
         // GET: api/Tag/5
         [HttpGet("{id}")]
         public ActionResult<TagEntity> GetTag(int id)
         {
-            var tag = _service.GetTagById(id);
+            var tag = _service.GetById(id);
 
             if (tag is null)
                 return NotFound();
@@ -41,7 +47,7 @@ namespace Recipes.Server.Controllers
         {
             if (tag is null)
                 return BadRequest();
-            var result = _service.UpdateTag(tag);
+            var result = _service.Update(tag);
             if (result)
                 return Ok(tag);
             return NotFound();
@@ -52,7 +58,7 @@ namespace Recipes.Server.Controllers
         [HttpPost]
         public ActionResult<TagEntity> PostTag(TagEntity tag)
         {
-            var result = _service.CreateTag(tag);
+            var result = _service.Create(tag);
             if (result)
                 return CreatedAtAction("GetTag", new { id = tag.TagId }, tag);
             return BadRequest();
@@ -62,7 +68,7 @@ namespace Recipes.Server.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteTag(int id)
         {
-            var result = _service.DeleteTag(id);
+            var result = _service.Delete(id);
             if (result)
                 return Ok();
             return NotFound();

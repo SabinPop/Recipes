@@ -1413,15 +1413,6 @@
    "Aproximari": ""
  },
  {
-   "Nume": "Salam Montana Alpinia",
-   "Calorii": 228,
-   "Proteine": "15.1",
-   "Lipide": 17.4,
-   "Carbohidrati": "2.7",
-   "Fibre": 0,
-   "Aproximari": "1 baton = 300 g"
- },
- {
    "Nume": "Slanina de porc",
    "Calorii": 638,
    "Proteine": "6.3",
@@ -3996,15 +3987,6 @@
    "Aproximari": ""
  },
  {
-   "Nume": "Crema de branza Campus Frischkase",
-   "Calorii": 175,
-   "Proteine": "7",
-   "Lipide": 14.5,
-   "Carbohidrati": "3",
-   "Fibre": 0,
-   "Aproximari": "1 buc = 200 g"
- },
- {
    "Nume": "Crema de branza Ceva Fin Delaco",
    "Calorii": 164,
    "Proteine": "7.3",
@@ -4955,15 +4937,6 @@
    "Proteine": "17",
    "Lipide": 17.2,
    "Carbohidrati": "1",
-   "Fibre": 0,
-   "Aproximari": ""
- },
- {
-   "Nume": "Telemea de vaca Romfulda",
-   "Calorii": 120,
-   "Proteine": "15",
-   "Lipide": 4,
-   "Carbohidrati": "3",
    "Fibre": 0,
    "Aproximari": ""
  },
@@ -10737,15 +10710,6 @@
    "Aproximari": ""
  },
  {
-   "Nume": "Cereale Cookie Crisp Nestle",
-   "Calorii": 375,
-   "Proteine": "6.3",
-   "Lipide": 3.1,
-   "Carbohidrati": "80.4",
-   "Fibre": 5.3,
-   "Aproximari": ""
- },
- {
    "Nume": "Cereale cu ciocolata Brumi",
    "Calorii": 384,
    "Proteine": "7.2",
@@ -14190,15 +14154,6 @@
    "Lipide": 20,
    "Carbohidrati": "53.3",
    "Fibre": 13.3,
-   "Aproximari": ""
- },
- {
-   "Nume": "Tarate de orez Now Foods",
-   "Calorii": 462,
-   "Proteine": "19.8",
-   "Lipide": 19.8,
-   "Carbohidrati": "52.8",
-   "Fibre": 13.2,
    "Aproximari": ""
  },
  {
@@ -21609,21 +21564,12 @@
    "Aproximari": "punga de 100g"
  },
  {
-   "Nume": "Alune de padure crude Elmas",
-   "Calorii": 623,
-   "Proteine": "",
-   "Lipide": 16.38,
-   "Carbohidrati": "1.38",
-   "Fibre": null,
-   "Aproximari": "punga de 250g"
- },
- {
    "Nume": "Alune de padure crude DISTINS",
    "Calorii": 516,
    "Proteine": "0.8",
    "Lipide": 25.3,
    "Carbohidrati": "71.4",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "punga de 250g"
  },
  {
@@ -21632,17 +21578,8 @@
    "Proteine": "1.9",
    "Lipide": 4.4,
    "Carbohidrati": "75.7",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "ambalaj plastic 175g"
- },
- {
-   "Nume": "Arahide in coaja",
-   "Calorii": 559,
-   "Proteine": "",
-   "Lipide": 8.63,
-   "Carbohidrati": "0.64",
-   "Fibre": null,
-   "Aproximari": "punga de 250g"
  },
  {
    "Nume": "Caju crud Elmas",
@@ -21650,7 +21587,7 @@
    "Proteine": "",
    "Lipide": 16.5,
    "Carbohidrati": "1.401",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "punga de 250g"
  },
  {
@@ -21661,24 +21598,6 @@
    "Carbohidrati": "20",
    "Fibre": 12,
    "Aproximari": "punga de 200g"
- },
- {
-   "Nume": "Migdale crude Elmas",
-   "Calorii": 550,
-   "Proteine": "",
-   "Lipide": 17.05,
-   "Carbohidrati": "1.2",
-   "Fibre": null,
-   "Aproximari": "punga de 250g"
- },
- {
-   "Nume": "Piure castane Raureni",
-   "Calorii": 176,
-   "Proteine": "2.9",
-   "Lipide": 0.17,
-   "Carbohidrati": "41.5",
-   "Fibre": 1.5,
-   "Aproximari": "borcan sticla de 350g"
  },
  {
    "Nume": "Miez de nuci K-Classic",
@@ -21697,15 +21616,6 @@
    "Carbohidrati": "14",
    "Fibre": 7,
    "Aproximari": "punga de 250g"
- },
- {
-   "Nume": "Seminte floarea soarelui Auchan",
-   "Calorii": 658,
-   "Proteine": "14.26",
-   "Lipide": 42.02,
-   "Carbohidrati": "38.2",
-   "Fibre": 35.02,
-   "Aproximari": "100g produs"
  },
  {
    "Nume": "Seminte floarea soarelui Tip",
@@ -21735,15 +21645,6 @@
    "Aproximari": "100g produs"
  },
  {
-   "Nume": "Seminte pestrite Ubernuts",
-   "Calorii": 617,
-   "Proteine": "17.28",
-   "Lipide": 10.54,
-   "Carbohidrati": "23.32",
-   "Fibre": 5.7,
-   "Aproximari": ""
- },
- {
    "Nume": "Seminte floarea soarelui Nutline",
    "Calorii": 436,
    "Proteine": "15.5",
@@ -21767,7 +21668,7 @@
    "Proteine": "14",
    "Lipide": 39,
    "Carbohidrati": "10",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": ""
  },
  {
@@ -21776,7 +21677,7 @@
    "Proteine": "9",
    "Lipide": 24,
    "Carbohidrati": "9",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": ""
  },
  {
@@ -21785,7 +21686,7 @@
    "Proteine": "9",
    "Lipide": 24,
    "Carbohidrati": "9",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": ""
  },
  {
@@ -21794,7 +21695,7 @@
    "Proteine": "23.6",
    "Lipide": 49.3,
    "Carbohidrati": "13.3",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": ""
  },
  {
@@ -21825,15 +21726,6 @@
    "Aproximari": "100g produs"
  },
  {
-   "Nume": "Migdale Orlando s",
-   "Calorii": 633,
-   "Proteine": "26.5",
-   "Lipide": 47.97,
-   "Carbohidrati": "17.74",
-   "Fibre": 12.1,
-   "Aproximari": "100g produs"
- },
- {
    "Nume": "Seminte de chia Fruit Orchard",
    "Calorii": 490,
    "Proteine": "21",
@@ -21843,39 +21735,12 @@
    "Aproximari": "100g produs"
  },
  {
-   "Nume": "Quinoa alba Fruit Orchard",
-   "Calorii": 355,
-   "Proteine": "12.19",
-   "Lipide": 5.94,
-   "Carbohidrati": "62.44",
-   "Fibre": 6.88,
-   "Aproximari": ""
- },
- {
-   "Nume": "Seminte de in Fruit Orchard",
-   "Calorii": 530,
-   "Proteine": "18.29",
-   "Lipide": 42.16,
-   "Carbohidrati": "28.88",
-   "Fibre": 27.3,
-   "Aproximari": "100g produs"
- },
- {
-   "Nume": "Seminte de susan Fruit Orchard",
-   "Calorii": 635,
-   "Proteine": "17.73",
-   "Lipide": 49.67,
-   "Carbohidrati": "23.45",
-   "Fibre": 11.8,
-   "Aproximari": ""
- },
- {
    "Nume": "Seminte de in Sano Vita",
    "Calorii": 568,
    "Proteine": "15",
    "Lipide": 45,
    "Carbohidrati": "18",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": ""
  },
  {
@@ -23324,14 +23189,14 @@
    "Proteine": "0.6",
    "Lipide": 0.2,
    "Carbohidrati": "15.9",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "cutie metal 425/250g"
  },
  {
    "Nume": "Compot cirese Raureni",
    "Calorii": 74.3,
    "Proteine": "",
-   "Lipide": null,
+   "Lipide": 0,
    "Carbohidrati": "19.5",
    "Fibre": 1.15,
    "Aproximari": "borcan sticla 720/396g"
@@ -23340,16 +23205,16 @@
    "Nume": "Compot de litchi Vitae D'oro",
    "Calorii": 96,
    "Proteine": "0.1",
-   "Lipide": null,
+   "Lipide": 0,
    "Carbohidrati": "24",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "cutie metal 567/255g"
  },
  {
    "Nume": "Compot visine slab indulcit Raureni",
    "Calorii": 83.8,
    "Proteine": "0.5",
-   "Lipide": null,
+   "Lipide": 0,
    "Carbohidrati": "20.9",
    "Fibre": 0.9,
    "Aproximari": "borcan sticla 720/396g"
@@ -23358,7 +23223,7 @@
    "Nume": "Compot de visine DINADI",
    "Calorii": 83.8,
    "Proteine": "0.5",
-   "Lipide": null,
+   "Lipide": 0,
    "Carbohidrati": "20.9",
    "Fibre": 0.9,
    "Aproximari": "borcan sticla 700/360g"
@@ -23378,16 +23243,16 @@
    "Proteine": "1%",
    "Lipide": 0.1,
    "Carbohidrati": "15%",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "cutie metal 312/75g"
  },
  {
    "Nume": "Mere rase Olympia",
    "Calorii": 238,
    "Proteine": "",
-   "Lipide": null,
+   "Lipide": 0,
    "Carbohidrati": "14",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "borcan sticla 720/585g"
  },
  {
@@ -23396,7 +23261,7 @@
    "Proteine": "0.5",
    "Lipide": 0.6,
    "Carbohidrati": "81",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "punga de 100g"
  },
  {
@@ -23414,7 +23279,7 @@
    "Proteine": "0.2",
    "Lipide": 0.1,
    "Carbohidrati": "16.9",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "borcan de sticla 710g"
  },
  {
@@ -23432,7 +23297,7 @@
    "Proteine": "",
    "Lipide": 0.2,
    "Carbohidrati": "12.2",
-   "Fibre": null,
+   "Fibre": 0,
    "Aproximari": "ambalaj de 100g"
  },
  {
@@ -26629,15 +26494,6 @@
    "Carbohidrati": "47.6",
    "Fibre": 1.5,
    "Aproximari": ""
- },
- {
-   "Nume": "Ciocolata alba cu alune intregi Ritter Sport",
-   "Calorii": 562,
-   "Proteine": "7",
-   "Lipide": 38,
-   "Carbohidrati": "48",
-   "Fibre": 0,
-   "Aproximari": "1 buc = 100 g"
  },
  {
    "Nume": "Ciocolata alba cu banane Banana Split Choco Venture Heidi",
@@ -33003,15 +32859,6 @@
    "Aproximari": ""
  },
  {
-   "Nume": "Porumb fiert KFC",
-   "Calorii": 109.1,
-   "Proteine": "3.5",
-   "Lipide": 0.4,
-   "Carbohidrati": "22.8",
-   "Fibre": 3.7,
-   "Aproximari": "1 buc = 175 g"
- },
- {
    "Nume": "Pulpa pui reteta originala KFC",
    "Calorii": 269.1,
    "Proteine": "14.9",
@@ -36936,15 +36783,6 @@
    "Aproximari": ""
  },
  {
-   "Nume": "Sos de usturoi Heinz",
-   "Calorii": 335,
-   "Proteine": "1.6",
-   "Lipide": 32.2,
-   "Carbohidrati": "9.1",
-   "Fibre": 0,
-   "Aproximari": ""
- },
- {
    "Nume": "Sos extra spicy Bolognese Dolmio",
    "Calorii": 49,
    "Proteine": "1.5",
@@ -38230,15 +38068,6 @@
    "Carbohidrati": "62.1",
    "Fibre": 0,
    "Aproximari": ""
- },
- {
-   "Nume": "Pufuleti Buggy Matias",
-   "Calorii": 435,
-   "Proteine": "7.5",
-   "Lipide": 9.1,
-   "Carbohidrati": "80.8",
-   "Fibre": 3.8,
-   "Aproximari": "1 punga = 100 g"
  },
  {
    "Nume": "Pufuleti cu branza Duffy",
@@ -40158,15 +39987,6 @@
    "Aproximari": "1 baton = 500 g"
  },
  {
-   "Nume": "Salam ardelenesc Cris-Tim",
-   "Calorii": 277.6,
-   "Proteine": "12.8",
-   "Lipide": 23.1,
-   "Carbohidrati": "4.7",
-   "Fibre": 0,
-   "Aproximari": ""
- },
- {
    "Nume": "Salam banatean Aldis",
    "Calorii": 434,
    "Proteine": "19",
@@ -40613,15 +40433,6 @@
    "Proteine": "11.1",
    "Lipide": 16.9,
    "Carbohidrati": "3.2",
-   "Fibre": 0,
-   "Aproximari": ""
- },
- {
-   "Nume": "Salam Montana Alpinia",
-   "Calorii": 257,
-   "Proteine": "16",
-   "Lipide": 21.2,
-   "Carbohidrati": "0.6",
    "Fibre": 0,
    "Aproximari": ""
  },

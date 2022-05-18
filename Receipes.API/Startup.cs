@@ -7,8 +7,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Recipes.API.Data;
 using Recipes.Server.Data.Seed;
-using Recipes.Server.Services;
-using Recipes.Server.Services.Interfaces;
 
 namespace Recipes.API
 {

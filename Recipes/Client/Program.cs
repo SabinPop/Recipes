@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using MudBlazor.Services;
 
 namespace Recipes.Client
 {
@@ -24,18 +24,18 @@ namespace Recipes.Client
             builder.Services.AddHttpClient("Recipes.Anonymous",
                 client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 
-            
+
 
             // Supply HttpClient instances that include access tokens when making requests to the server project
             builder.Services.AddScoped(sp =>
             sp.GetRequiredService<IHttpClientFactory>()
             .CreateClient("Recipes.ServerAPI"));
 
-            
+
 
             builder.Services.AddApiAuthorization();
 
-            
+
             builder.Services
             .AddMudServices();
 

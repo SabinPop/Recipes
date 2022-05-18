@@ -7,6 +7,7 @@
 
 @using Microsoft.AspNetCore.WebUtilities
 @using Newtonsoft.Json
+@using Recipes.Client.Components
 
 @inject IJSRuntime Js
 @inject IHttpClientFactory ClientFactory
@@ -14,9 +15,46 @@
 
 <h2 class="ma-6">Recipes - Page </h2>
 
+<MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+    @foreach(var recipe in Recipes)
+    {
+        <RecipePartial RecipeDetails="@recipe"></RecipePartial>
+    }
+</MudGrid>
 
 
+@code { 
 
-@code {
+    HttpClient publicHttpClient;
+    List<RecipeDetails> Recipes = new List<RecipeDetails>();
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
+
+        Recipes = await GetAllAsync();
+    }
+
+    private async Task<List<RecipeDetails>> GetAllAsync()
+    {
+        var i = new List<RecipeDetails>();
+        var param = new Dictionary<string, string>
+        {
+            ["pagination"] = "false"
+        };
+        var uri = QueryHelpers.AddQueryString("api/Recipe", queryString: param);
+        try
+        {
+
+            var response = await publicHttpClient.GetAsync(uri);
+            var content = await response.Content.ReadAsStringAsync();
+            i = JsonConvert.DeserializeObject<List<RecipeDetails>>(content);
+        }
+        catch (Exception)
+        {
+            // NavigationManager.NavigateTo("/");
+        }
+        return i;
+    }
 }

@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Recipes.Server.Services.Interfaces;
+using Newtonsoft.Json;
 using Recipes.Server.Models.Entities;
+using Recipes.Server.Services.Interfaces;
+using Recipes.Shared.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using AutoMapper;
-using Recipes.Shared.Models;
-using Newtonsoft.Json;
 
 namespace Recipes.Server.Controllers
 {
