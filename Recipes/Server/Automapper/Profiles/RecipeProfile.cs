@@ -51,6 +51,9 @@ namespace Recipes.Server.Automapper.Profiles
             CreateMap<TagEntity, Tag>().ReverseMap();
             CreateMap<TagEntity, TagCreate>().ReverseMap();
             CreateMap<TagEntity, TagEdit>().ReverseMap();
+
+            CreateMap<List<TagEntity>, List<Tag>>().ReverseMap();
+            CreateMap<List<TagEntity>, List<TagEdit>>().ReverseMap();
             #endregion 
         }
     }

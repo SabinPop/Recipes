@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Recipes.Server.Data.Seed;
 using Recipes.Server.Models.Entities;
 using Recipes.Server.Services.Interfaces;
+using Recipes.Shared.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Recipes.Server.Controllers
 {
@@ -11,33 +15,35 @@ namespace Recipes.Server.Controllers
     public class TagController : ControllerBase
     {
         private readonly IRepository<TagEntity, int> _service;
-
+        private readonly IMapper _mapper;
 
         private readonly PopulateIngredientsTableService tableService;
 
-        public TagController(IRepository<TagEntity, int> service, PopulateIngredientsTableService tableService)
+        public TagController(IRepository<TagEntity, int> service,
+            PopulateIngredientsTableService tableService, IMapper mapper)
         {
             _service = service;
             this.tableService = tableService;
+            _mapper = mapper;
         }
 
         // GET: api/Tag
         [HttpGet]
-        public ActionResult<IEnumerable<TagEntity>> GetTags()
+        public async Task<ActionResult<IEnumerable<TagEntity>>> GetTagsAsync()
         {
             //tableService.Populate();
-            return Ok(_service.GetAll());
+            return Ok(_mapper.Map<IEnumerable<TagEdit>>(await _service.GetAll().ToListAsync()));
         }
 
         // GET: api/Tag/5
         [HttpGet("{id}")]
-        public ActionResult<TagEntity> GetTag(int id)
+        public ActionResult<Tag> GetTag(int id)
         {
             var tag = _service.GetById(id);
 
             if (tag is null)
                 return NotFound();
-            return Ok(tag);
+            return Ok(_mapper.Map<Tag>(tag));
         }
 
         // PUT: api/Tag/5

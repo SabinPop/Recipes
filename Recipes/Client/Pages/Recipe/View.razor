@@ -3,19 +3,23 @@
 @using Microsoft.AspNetCore.Authorization
 @using Recipes.Client.Components
 
+@inject NavigationManager NavigationManager
+
 <Recipe Id="Id">
 
 </Recipe>
+
+<MudFab Label="Edit recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit"
+        Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px"
+        OnClick="RedirectToEditPage" />
 
 @code {
     [Parameter]
     public int Id { get; set; }
 
-
-
-    protected override async Task OnInitializedAsync()
+    private void RedirectToEditPage()
     {
-        
+        NavigationManager.NavigateTo($"/recipes/edit/{Id}");
     }
 
 }

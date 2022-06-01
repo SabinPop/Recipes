@@ -14,7 +14,7 @@
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager NavigationManager
 
-<h2 class="ma-6">Ingredients - Page @_metaData.CurrentPage</h2>
+
 
 @if (currentIngredientsPage == null)
 {
@@ -25,7 +25,7 @@
 }
 else
 {
-
+    <h2 class="ma-6">Ingredients - Page @_metaData.CurrentPage</h2>
     <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
         @foreach (var i in currentIngredientsPage)
         {
@@ -36,35 +36,55 @@ else
                             <MudText Typo="Typo.h4">
                                 @i.Name
                             </MudText>
-                            <MudList>
+                            <MudList DisableGutters="true">
                                 <MudListItem Text="Nutritional values">
                                     <NestedList>
-                                        <MudListItem>
-                                            <MudPaper Class="d-flex justify-space-between p-2">
-                                                <MudText Typo="Typo.body2">Kilocalories</MudText>
-                                                <MudDivider Vertical="true" FlexItem="true" />
-                                                <MudText Typo="Typo.body2">@i.NutritionalValues.Kilocalories</MudText>
+                                        <MudListItem DisableGutters="true">
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Kilocalories</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Kilocalories</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
                                             </MudPaper>
                                         </MudListItem>
                                         <MudListItem>
-                                            <MudPaper Class="d-flex justify-space-between p-2">
-                                                <MudText Typo="Typo.body2">Protein</MudText>
-                                                <MudDivider Vertical="true" FlexItem="true" />
-                                                <MudText Typo="Typo.body2">@i.NutritionalValues.Protein</MudText>
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Protein</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Protein</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
                                             </MudPaper>
                                         </MudListItem>
                                         <MudListItem>
-                                            <MudPaper Class="d-flex justify-space-between p-2">
-                                                Fat
-                                                <MudDivider Vertical="true" FlexItem="true" />
-                                                @i.NutritionalValues.Fat
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Fat</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Fat</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
                                             </MudPaper>
                                         </MudListItem>
                                         <MudListItem>
-                                            <MudPaper Class="d-flex justify-space-between p-2">
-                                                <MudText Typo="Typo.body2">Carbs</MudText>
-                                                <MudDivider Vertical="true" FlexItem="true" />
-                                                <MudText Typo="Typo.body2">@i.NutritionalValues.Carbs</MudText>
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Carbs</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Carbs</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
                                             </MudPaper>
                                         </MudListItem>
                                     </NestedList>

@@ -33,10 +33,12 @@
                 <MudChipSet Class="overflow-y-scroll" Style="white-space: nowrap;">
                     @foreach (var tag in RecipeDetails.Tags)
                     {
-                        <MudChip Variant="Variant.Outlined" Text="@tag.Name" Color="Color.Secondary" 
-                                  DisableRipple="true">
+                        <MudLink Href="@string.Concat("/tags/view/", tag.Name)" @onclick="@(() => OnTagClick(tag.Name))">
+                            <MudChip Variant="Variant.Outlined" Text="@tag.Name" Color="Color.Secondary" 
+                                      DisableRipple="true">
 
-                        </MudChip>
+                            </MudChip>
+                        </MudLink>
                     }
                 </MudChipSet>
             </MudCardActions>
@@ -47,6 +49,14 @@
 @code {
     [Parameter]
     public RecipeDetails RecipeDetails { get; set; }
+
+    [Parameter]
+    public EventCallback<string> TagClickCallback { get; set; }
+
+    protected async Task OnTagClick(string tagName)
+    {
+        await TagClickCallback.InvokeAsync(tagName);
+    }
 
     private string Href { get => "/recipes/view/" + RecipeDetails.RecipeId; }
 

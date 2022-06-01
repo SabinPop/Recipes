@@ -6,16 +6,14 @@
 
 @if (Model.RecipeId == 0)
 {
-    <MudPaper Class="d-flex justify-center align-center" Elevation="0">
-        <MudProgressCircular Class="object-center ma-6" Color="Color.Secondary" Indeterminate="true" Size="Size.Large"></MudProgressCircular>
-    </MudPaper>
+    <Loading></Loading>
 }
 else { 
 <MudProgressLinear @ref="@ProgressBar" Color="Color.Secondary" Value="@ProgressValue" Class="@(progressBarClass)" Size="Size.Medium" />
 <MudCard Class="mb-5">
     <MudCardContent>
         <MudExpansionPanels MultiExpansion="true">
-            <MudExpansionPanel Text="Recipe Details" IsExpanded="true">
+            <MudExpansionPanel Text="Recipe Details" @bind-IsExpanded="IsExpanded[0]">
                 <MudField Label="Name" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Title" Variant="Variant.Outlined">
                     @Model.Name
                 </MudField>
@@ -45,7 +43,7 @@ else {
                     </MudItem>
                 </MudGrid>
             </MudExpansionPanel>
-            <MudExpansionPanel Text="Ingredients" IsExpanded="true">
+            <MudExpansionPanel Text="Ingredients" @bind-IsExpanded="IsExpanded[1]">
                 <MudTable T="IngredientWithQuantity"
                           Items="Model.IngredientsWithQuantities">
                     <HeaderContent>
@@ -66,7 +64,7 @@ else {
                     </RowTemplate>
                 </MudTable>
             </MudExpansionPanel>
-            <MudExpansionPanel Text="Recipe Steps" IsExpanded="true">
+            <MudExpansionPanel Text="Recipe Steps" @bind-IsExpanded="IsExpanded[2]">
                 <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
                     @foreach (var item in Model.RecipeSteps)
                     {
@@ -79,15 +77,17 @@ else {
                     }
                 </MudTimeline>
             </MudExpansionPanel>
-            <MudExpansionPanel Text="Tags" IsExpanded="true">
+            <MudExpansionPanel Text="Tags" @bind-IsExpanded="IsExpanded[3]">
                 <MudChipSet>
                     @foreach (var item in Model.Tags)
                     {
-                        <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Primary" DisableRipple="true"></MudChip>
+                        <MudLink Href="@string.Concat("/tags/view/", item.Name)">
+                            <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Primary" DisableRipple="true"></MudChip>
+                        </MudLink>
                     }
-                </MudChipSet>
+                    </MudChipSet>
             </MudExpansionPanel>
-            <MudExpansionPanel Text="Nutritional values" IsExpanded="true">
+            <MudExpansionPanel Text="Nutritional values" @bind-IsExpanded="IsExpanded[4]">
                 <MudTable Items="Model.NutritionalValuesDictionary()">
                     <RowTemplate>
                         <MudTd>@context.Key</MudTd>
@@ -111,6 +111,8 @@ else {
     MudTable<IngredientWithQuantity> ingredientsTable;
     MudTable<RecipeStep> stepsTable;
 
+    private bool[] IsExpanded = { true, true, true, true, true };
+
     private HttpClient publicHttpClient;
 
     private RecipeView Model = new RecipeView();
@@ -132,7 +134,7 @@ else {
         var recipe = new RecipeView();
         try
         {
-            var response = await publicHttpClient.GetAsync("api/Recipe/" + id);
+            var response = await publicHttpClient.GetAsync($"api/Recipe/{id}");
             var content = await response.Content.ReadAsStringAsync();
             recipe = JsonConvert.DeserializeObject<RecipeView>(content);
         }

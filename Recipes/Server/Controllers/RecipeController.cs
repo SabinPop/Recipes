@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Recipes.Server.Models.Entities;
+using Recipes.Server.Services;
 using Recipes.Server.Services.Interfaces;
 using Recipes.Shared.Models;
 using System.Collections.Generic;
@@ -54,13 +55,22 @@ namespace Recipes.Server.Controllers
 
         // GET: api/Recipe/5
         [HttpGet("{id}")]
-        public ActionResult<RecipeEntity> GetRecipe(int id)
+        public ActionResult<RecipeView> GetRecipe(int id)
         {
             if (_service.Exists(id) == false)
                 return NotFound();
             return Ok(
                 _mapper.Map<RecipeView>(
                 _service.GetById(id)));
+        }
+
+        //GET: api/Recipe/tags
+        [HttpPost("tags")]
+        public async Task<ActionResult<IEnumerable<RecipeDetails>>> GetRecipesWithGivenTags(IEnumerable<string> tags)
+        {
+            var recipes = await (_service as RecipeService).GetRecipesWithGivenTagsAsync(tags);
+            var rds = _mapper.Map<IEnumerable<RecipeDetails>>(recipes);
+            return Ok(rds);
         }
 
         // PUT: api/Recipe/5

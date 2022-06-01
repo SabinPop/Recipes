@@ -2,38 +2,51 @@
 
 @using Recipes.Shared.Models
 @using Recipes.Shared.Paging
-@using Microsoft.AspNetCore.Authorization 
+@using Microsoft.AspNetCore.Authorization
 @using System.Collections.Generic
-
 @using Microsoft.AspNetCore.WebUtilities
 @using Newtonsoft.Json
 @using Recipes.Client.Components
 
-@inject IJSRuntime Js
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager NavigationManager
 
-<h2 class="ma-6">Recipes - Page </h2>
 
+@if (isLoading == true)
+{
+    <Loading></Loading>
+}
+else if (Recipes.Count() == 0)
+{
+    <MudText Typo="Typo.body1">
+        No recipes found
+    </MudText>
+}
+else
+{
+<h2 class="ma-6">Recipes - Page </h2>
 <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
-    @foreach(var recipe in Recipes)
+    @foreach (var recipe in Recipes)
     {
         <RecipePartial RecipeDetails="@recipe"></RecipePartial>
     }
 </MudGrid>
+}
 
-
-@code { 
+@code {
 
     HttpClient publicHttpClient;
     List<RecipeDetails> Recipes = new List<RecipeDetails>();
 
+    private bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
         publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
 
+        isLoading = true;
         Recipes = await GetAllAsync();
+        isLoading = false;
     }
 
     private async Task<List<RecipeDetails>> GetAllAsync()

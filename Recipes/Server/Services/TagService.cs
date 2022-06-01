@@ -55,7 +55,7 @@ namespace Recipes.Server.Services
 
         public bool Exists(TagEntity tag)
         {
-            return _context.Tags.AsNoTracking().Any(t => t == tag);
+            return _context.Tags.AsNoTracking().Any(t => t.Name == tag.Name);
         }
 
         public bool Exists(int id)
@@ -65,7 +65,7 @@ namespace Recipes.Server.Services
 
         public IQueryable<TagEntity> GetAll()
         {
-            return _context.Tags.AsNoTracking().Select(x => x);
+            return _context.Tags.AsNoTracking().Include(t => t.Recipes).Select(x => x).Where(x => x.Recipes.Count > 0);
         }
 
         public TagEntity GetById(int id)

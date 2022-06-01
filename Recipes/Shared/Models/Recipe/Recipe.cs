@@ -40,67 +40,6 @@ namespace Recipes.Shared.Models
             return nutritionalValues;
         }
 
-        public HashSet<TagEdit> GetTagsFromNutritionalValues()
-        {
-            var tags = new HashSet<TagEdit>();
-            if (NutritionalValues.Fat <= 3)
-            {
-                if (NutritionalValues.Fat < (decimal)0.2)
-                {
-                    tags.Add(new TagEdit()
-                    {
-                        Name = "no fat"
-                    });
-                }
-                else
-                {
-                    tags.Add(new TagEdit
-                    {
-                        Name = "fow fat"
-                    });
-                }
-            }
-            else if (NutritionalValues.Fat >= 17)
-            {
-                tags.Add(new TagEdit()
-                {
-                    Name = "high fat"
-                });
-            }
-            if (NutritionalValues.Carbs <= 4)
-            {
-                if (NutritionalValues.Carbs < (decimal)0.2)
-                {
-                    tags.Add(new TagEdit()
-                    {
-                        Name = "no carbs"
-                    });
-                }
-                else
-                {
-                    tags.Add(new TagEdit
-                    {
-                        Name = "low carbs"
-                    });
-                }
-
-            }
-            else if (NutritionalValues.Carbs >= 20)
-            {
-                tags.Add(new TagEdit()
-                {
-                    Name = "high carbs"
-                });
-            }
-            if (NutritionalValues.Protein >= 16)
-            {
-                tags.Add(new TagEdit()
-                {
-                    Name = "high protein"
-                });
-            }
-
-            return tags;
-        }
+        
     }
 }
