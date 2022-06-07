@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
+using Recipes.Shared.Authorization;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -34,7 +37,12 @@ namespace Recipes.Client
 
 
             builder.Services.AddApiAuthorization();
-
+            builder.Services.AddAuthorizationCore(o =>
+            {
+                o.AddPolicy("EditDeletePolicy", policy =>
+                    policy.Requirements.Add(new OperationAuthorizationRequirement()));
+            });
+            builder.Services.AddSingleton<IAuthorizationHandler, RecipeAuthorizationHandler>();
 
             builder.Services
             .AddMudServices();

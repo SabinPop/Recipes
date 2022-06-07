@@ -1,5 +1,9 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+.tooltip-helper{
+    width: auto !important;
+}
+
 @keyframes hide{
     0%{
         visibility: visible;
@@ -17,6 +21,12 @@
         margin-bottom: 0px !important;
         visibility: hidden;
     }
+}
+
+
+/*otherwise the bottom-group separator is dark*/
+.mud-button-group-text.mud-button-group-override-styles.mud-button-group-horizontal:not(.mud-button-group-rtl) .mud-button-root:not(:first-child), .mud-button-group-text.mud-button-group-override-styles.mud-button-group-horizontal:not(.mud-button-group-rtl) > :not(:first-child) .mud-button-root {
+    border-left: 1px solid var(--mud-palette-appbar-text) !important;
 }
 
 .hide{

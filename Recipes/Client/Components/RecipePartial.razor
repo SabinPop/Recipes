@@ -1,14 +1,36 @@
 ﻿@using Recipes.Shared.Models
 
+@inject HttpClient PrivateHttp
+
 <MudItem xs="12" sm="6" md="4" lg="4" xl="3" xxl="2">
     <MudPaper Elevation="3">
         <MudCard>
             <MudCardHeader>
-                <MudLink Href="@Href">
-                    <MudText Typo="Typo.h5">
-                        @RecipeDetails.Name
-                    </MudText>
-                </MudLink>
+                <AuthorizeView>
+                    <Authorized>
+                        <MudGrid Justify="Justify.SpaceBetween">
+                            <MudItem xs="10" sm="8" md="8">
+                                <MudLink Href="@Href">
+                                    <MudText Typo="Typo.h5">
+                                        @RecipeDetails.Name
+                                    </MudText>
+                                </MudLink>
+                            </MudItem>
+                            <MudItem xs="2" sm="4" md="4">
+                                <MudToggleIconButton Toggled="@_toggle" ToggledChanged="OnToggleFavorite"
+                                                     Icon="@FavoriteIcons[0]" Color="@Color.Error" Title="@FavoriteIcons[2]"
+                                                     ToggledIcon="@FavoriteIcons[1]" ToggledColor="@Color.Error" ToggledTitle="@FavoriteIcons[2]" />
+                            </MudItem>
+                        </MudGrid>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudLink Href="@Href">
+                            <MudText Typo="Typo.h5">
+                                @RecipeDetails.Name
+                            </MudText>
+                        </MudLink>
+                    </NotAuthorized>
+                </AuthorizeView>
             </MudCardHeader>
             <MudCardContent>
                 <MudGrid Justify="Justify.FlexStart" Spacing="2">
@@ -33,7 +55,7 @@
                 <MudChipSet Class="overflow-y-scroll" Style="white-space: nowrap;">
                     @foreach (var tag in RecipeDetails.Tags)
                     {
-                        <MudLink Href="@string.Concat("/tags/view/", tag.Name)" @onclick="@(() => OnTagClick(tag.Name))">
+                        <MudLink Href="@($"/tags/view/{tag.Name}/")" @onclick="@(() => OnTagClick(tag.Name))">
                             <MudChip Variant="Variant.Outlined" Text="@tag.Name" Color="Color.Secondary" 
                                       DisableRipple="true">
 
@@ -47,11 +69,38 @@
 </MudItem>
 
 @code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+
     [Parameter]
     public RecipeDetails RecipeDetails { get; set; }
 
     [Parameter]
     public EventCallback<string> TagClickCallback { get; set; }
+
+    UserRecipeRequest request = new UserRecipeRequest();
+
+    bool _toggle = false;
+
+    string Filled = Icons.Material.Filled.Favorite;
+    string Empty = Icons.Material.Filled.FavoriteBorder;
+
+    string[] FavoriteIcons = new string[3];
+
+    public async void OnToggleFavorite(bool toggle) {
+        _toggle = toggle;
+        var response = await ToggleMark();
+        if (response == "marked")
+        {
+            RecipeDetails.IsFavorite = true;
+        }
+        else if (response == "unmarked")
+        {
+            RecipeDetails.IsFavorite = false;
+        }
+        StateHasChanged();
+    }
 
     protected async Task OnTagClick(string tagName)
     {
@@ -60,9 +109,44 @@
 
     private string Href { get => "/recipes/view/" + RecipeDetails.RecipeId; }
 
-    protected override Task OnInitializedAsync()
+    protected override Task OnParametersSetAsync()
     {
-        return base.OnInitializedAsync();
+        if (RecipeDetails.IsFavorite == true)
+        {
+            FavoriteIcons[0] = Filled;
+            FavoriteIcons[1] = Empty;
+            FavoriteIcons[2] = "Unmark";
+        }
+        else
+        {
+            FavoriteIcons[0] = Empty;
+            FavoriteIcons[1] = Filled;
+            FavoriteIcons[2] = "Mark as favorite";
+        }
+        return base.OnParametersSetAsync();
+    }
 
+    protected override async Task OnInitializedAsync()
+    {
+
+        var authState = await AuthenticationState;
+        var user = authState.User.Identity.Name;
+        request.UserName = user;
+        request.RecipeId = RecipeDetails.RecipeId;
+    }
+
+    private async Task<string> ToggleMark()
+    {
+        try
+        {
+            var response = await PrivateHttp.PostAsJsonAsync("api/recipe/mark", request);
+            var content = await response.Content.ReadAsStringAsync();
+            return content;
+        }
+        catch(Exception)
+        {
+
+        }
+        return "other";
     }
 }

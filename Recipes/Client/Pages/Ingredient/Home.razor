@@ -25,6 +25,11 @@
 }
 else
 {
+    <style>
+        .mud-tooltip-root{
+            width: auto !important;
+        }
+    </style>
     <h2 class="ma-6">Ingredients - Page @_metaData.CurrentPage</h2>
     <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
         @foreach (var i in currentIngredientsPage)
@@ -33,13 +38,22 @@ else
                 <MudPaper Elevation="3">
                     <MudCard Class="mud-theme-primary">
                         <MudCardContent>
-                            <MudText Typo="Typo.h4">
-                                @i.Name
-                            </MudText>
+                            <MudTooltip Inline="false">
+                                <ChildContent>
+                                    <MudText Typo="Typo.h5" Style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                                        @i.Name
+                                    </MudText>
+                                </ChildContent>
+                                <TooltipContent>
+                                    <MudText Typo="Typo.body1">
+                                        @i.Name
+                                    </MudText>
+                                </TooltipContent>
+                            </MudTooltip>
                             <MudList DisableGutters="true">
                                 <MudListItem Text="Nutritional values">
                                     <NestedList>
-                                        <MudListItem DisableGutters="true">
+                                        <MudListItem DisableGutters="true" Dense="true">
                                             <MudPaper Class="pa-2">
                                                 <MudGrid Justify="Justify.SpaceBetween">
                                                     <MudItem>
@@ -51,7 +65,7 @@ else
                                                 </MudGrid>
                                             </MudPaper>
                                         </MudListItem>
-                                        <MudListItem>
+                                        <MudListItem DisableGutters="true" Dense="true">
                                             <MudPaper Class="pa-2">
                                                 <MudGrid Justify="Justify.SpaceBetween">
                                                     <MudItem>
@@ -63,7 +77,7 @@ else
                                                 </MudGrid>
                                             </MudPaper>
                                         </MudListItem>
-                                        <MudListItem>
+                                        <MudListItem DisableGutters="true" Dense="true">
                                             <MudPaper Class="pa-2">
                                                 <MudGrid Justify="Justify.SpaceBetween">
                                                     <MudItem>
@@ -75,7 +89,7 @@ else
                                                 </MudGrid>
                                             </MudPaper>
                                         </MudListItem>
-                                        <MudListItem>
+                                        <MudListItem DisableGutters="true" Dense="true">
                                             <MudPaper Class="pa-2">
                                                 <MudGrid Justify="Justify.SpaceBetween">
                                                     <MudItem>
@@ -92,11 +106,6 @@ else
                             </MudList>
 
                         </MudCardContent>
-                        <MudCardActions>
-                            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Primary">
-
-                            </MudButton>
-                        </MudCardActions>
                     </MudCard>
                 </MudPaper>
             </MudItem>

@@ -37,6 +37,14 @@ else {
                         </MudField>
                     </MudItem>
                     <MudItem xs="12" sm="12" md="6" lg="4">
+                        <MudLink Href="@AuthorLink">
+                            <MudField Label="User" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.PermIdentity" Variant="Variant.Outlined">
+                                @Model.Author
+                            </MudField>
+                        </MudLink>
+                        
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="6" lg="4">
                         <MudField Label="Creation date" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EditCalendar" Variant="Variant.Outlined">
                             @Model.CreationDate.Date.ToShortDateString()
                         </MudField>
@@ -102,10 +110,6 @@ else {
 }
 
 @code {
-
-    [Parameter]
-    public int Id { get; set; }
-
     MudProgressLinear ProgressBar;
 
     MudTable<IngredientWithQuantity> ingredientsTable;
@@ -113,43 +117,32 @@ else {
 
     private bool[] IsExpanded = { true, true, true, true, true };
 
-    private HttpClient publicHttpClient;
+    private string AuthorLink { get; set; }
 
-    private RecipeView Model = new RecipeView();
+    [Parameter]
+    public RecipeView Model { get; set; }
 
     private double ProgressValue { get; set; } = 1;
 
     private string progressBarClass = "my-5";
 
+    protected override void OnParametersSet()
+    {
+        AuthorLink = $"recipes/by/{Model.Author}/";
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
-        Model = await GetRecipeAsync(Id);
         ProgressValue = 100;
         await HideProgressBar();
     }
 
-    private async Task<RecipeView> GetRecipeAsync(int id)
-    {
-        var recipe = new RecipeView();
-        try
-        {
-            var response = await publicHttpClient.GetAsync($"api/Recipe/{id}");
-            var content = await response.Content.ReadAsStringAsync();
-            recipe = JsonConvert.DeserializeObject<RecipeView>(content);
-        }
-        catch (Exception)
-        {
-
-        }
-        return recipe;
-    }
-
-    private async Task HideProgressBar()
+    public async Task HideProgressBar()
     {
         await Task.Delay(500);
 
         progressBarClass += " hide";
     }
+
 
 }

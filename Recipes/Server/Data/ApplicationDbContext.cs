@@ -31,25 +31,26 @@ namespace Recipes.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            /*
-            modelBuilder.Entity<ApplicationUser>()
-                .HasMany(u => u.FavoriteRecipes)
-                .WithMany(fr => fr.UsersWhoLikedThis);
-
-            modelBuilder.Entity<RecipeEntity>()
-                .HasMany(r => r.UsersWhoLikedThis)
-                .WithMany(a => a.FavoriteRecipes);
 
             modelBuilder.Entity<ApplicationUser>()
                 .HasMany(u => u.UserRecipes)
-                .WithOne(ur => ur.Author);
+                .WithOne(ur => ur.User);
 
             modelBuilder.Entity<RecipeEntity>()
-                .HasOne(r => r.Author)
+                .HasOne(r => r.User)
                 .WithMany(a => a.UserRecipes)
-                .HasForeignKey(r => r.AuthorId);
+                .HasForeignKey(r => r.UserId);
+            //.HasPrincipalKey(a => a.UserName);
 
-            */
+
+            modelBuilder.Entity<ApplicationUser>()
+                .HasMany(u => u.FavoriteRecipes)
+                .WithMany(r => r.UsersWhoLikedThis);
+
+            modelBuilder.Entity<RecipeEntity>()
+                .HasMany(r => r.UsersWhoLikedThis)
+                .WithMany(u => u.FavoriteRecipes);
+
 
             modelBuilder.Entity<IngredientWithQuantityEntity>()
                 .HasKey(iq => new { iq.RecipeId, iq.IngredientId });

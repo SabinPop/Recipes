@@ -31,13 +31,18 @@ namespace Recipes.Server.Models.Entities
         [Range(1, 12, ErrorMessage = "Number of servings must be between 1 and 12")]
         public int NumberOfServings { get; set; }
 
-        public string ImageUrl { get; set; }
+        //public string ImageUrl { get; set; }
 
 
-        // public ApplicationUser Author { get; set; }
+        public string Author { get; set; }
+
+        public ApplicationUser User { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public string UserId { get; set; }
 
 
-        // public virtual ICollection<ApplicationUser> UsersWhoLikedThis { get; set; }
+        public virtual HashSet<ApplicationUser> UsersWhoLikedThis { get; set; }
 
 
         public HashSet<IngredientWithQuantityEntity> IngredientsWithQuantities { get; set; }

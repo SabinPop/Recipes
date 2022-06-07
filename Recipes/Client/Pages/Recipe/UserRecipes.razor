@@ -1,4 +1,5 @@
-﻿@page "/recipes"
+﻿@page "/recipes/by/{author}"
+@page "/my/recipes"
 
 @using Recipes.Shared.Models
 @using Recipes.Shared.Paging
@@ -24,19 +25,21 @@ else if (Recipes.Count() == 0)
 }
 else
 {
-<h2 class="ma-6">Recipes - Page </h2>
-<MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
-    @foreach (var recipe in Recipes)
-    {
-        <RecipePartial RecipeDetails="@recipe"></RecipePartial>
-    }
-</MudGrid>
+    <h2 class="ma-6"> @(string.IsNullOrWhiteSpace(Author) ? "My" : $"{Author}") recipes - Page </h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach (var recipe in Recipes)
+        {
+            <RecipePartial RecipeDetails="@recipe"></RecipePartial>
+        }
+    </MudGrid>
 }
 
 @code {
-
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationState { get; set; }
+
+    [Parameter]
+    public string Author { get; set; } = null;
 
     HttpClient publicHttpClient;
     List<RecipeDetails> Recipes = new List<RecipeDetails>();
@@ -47,11 +50,25 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
-
         var authState = await AuthenticationState;
-        if(authState.User.Identity.IsAuthenticated)
-            _user = authState.User.Identity.Name;
+        _user = authState.User.Identity.Name;
+
+        if (!string.IsNullOrWhiteSpace(Author) && !string.IsNullOrWhiteSpace(_user))
+        {
+            if(Author.Equals(_user))
+                NavigationManager.NavigateTo(NavigationManager.BaseUri + "my/recipes/");
+        }
+
+        if (NavigationManager.Uri.StartsWith(NavigationManager.BaseUri + "my/recipes"))
+        {
+            if(!authState.User.Identity.IsAuthenticated)
+            {
+                NavigationManager.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
+            }
+        }
+
+
+        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
 
         isLoading = true;
         Recipes = await GetAllAsync();
@@ -64,6 +81,7 @@ else
         var param = new Dictionary<string, string>
         {
             ["pagination"] = "false",
+            ["author"] = $"{Author ?? _user}",
             ["username"] = _user
         };
         var uri = QueryHelpers.AddQueryString("api/Recipe", queryString: param);

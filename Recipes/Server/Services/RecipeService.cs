@@ -9,16 +9,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static Recipes.Server.Services.ServiceConstants;
 
 namespace Recipes.Server.Services
 {
     public class RecipeService : IRepository<RecipeEntity, int>
     {
         private readonly ApplicationDbContext _context;
+        private readonly IUserService _userService;
 
-        public RecipeService(ApplicationDbContext context)
+        public RecipeService(ApplicationDbContext context, IUserService userService)
         {
             _context = context;
+            _userService = userService;
         }
 
         public bool Create(RecipeEntity recipe)
@@ -70,7 +73,12 @@ namespace Recipes.Server.Services
 
         public IQueryable<RecipeEntity> GetAll()
         {
-            return _context.Recipes.AsNoTracking().Select(x => x).Include(r => r.Tags);
+            return _context.Recipes.AsNoTracking()
+                .Select(x => x)
+                .Include(r => r.User)
+                    .ThenInclude(x => x.FavoriteRecipes)
+                .Include(r => r.Tags)
+                .Include(r => r.UsersWhoLikedThis);
         }
 
         public RecipeEntity GetById(int id)
@@ -83,6 +91,57 @@ namespace Recipes.Server.Services
                 .Include(r => r.Tags)
                 .Include(r => r.NutritionalValues).ToList()
                 .FirstOrDefault(r => r.RecipeId == id);
+        }
+
+        public IEnumerable<RecipeEntity> GetUserRecipes(string username)
+        {
+            if (!_userService.Exists(username) || !_userService.HasPublishedRecipes(username))
+                return new List<RecipeEntity>();
+            return GetAll().Where(r => r.Author.ToUpper() == username.ToUpper());
+        }
+
+        public IEnumerable<RecipeEntity> GetUserFavorites(string username)
+        {
+            return _userService.GetUserFavoriteRecipes(username);
+        }
+
+        public bool IsUserFavorite(UserRecipeRequest request)
+        {
+            return _userService.IsRecipeFavorite(request);
+        }
+
+        // mark/unmark recipe as favorite for the user
+        public MarkAsFavoriteResponse MarkAsFavorite(UserRecipeRequest request)
+        {
+            if (!Exists(request.RecipeId))
+                return MarkAsFavoriteResponse.RecipeDoesNotExist;
+            var recipe = _context.Recipes.FirstOrDefault(r => r.RecipeId == request.RecipeId);
+            var isFavorite = _userService.IsRecipeFavorite(request);
+            var user = _userService.GetUser();
+            var appUser = _userService.GetUserByUserName(request.UserName);
+            if (!user.Identity.IsAuthenticated)
+                return MarkAsFavoriteResponse.UserIsNotLoggedIn;
+            if(isFavorite is false)
+            {
+                //recipe.UsersWhoLikedThis.Add((Models.ApplicationUser)user.Identity);
+                var result = _userService.AddRecipeToFavorites(recipe, request.UserName);
+                if (result is true)
+                {
+                    recipe.UsersWhoLikedThis.Add(appUser);
+                    return MarkAsFavoriteResponse.Marked;
+                }
+            }
+            else
+            {
+                //recipe.UsersWhoLikedThis.Remove((Models.ApplicationUser)user.Identity);
+                var result = _userService.RemoveRecipeFromFavorites(request.RecipeId, request.UserName);
+                if (result is true)
+                {
+                    recipe.UsersWhoLikedThis.Remove(appUser);
+                    return MarkAsFavoriteResponse.Unmarked;
+                }
+            }
+            return MarkAsFavoriteResponse.CouldNotMark;
         }
 
         //not necessarily at this moment 
@@ -139,7 +198,11 @@ namespace Recipes.Server.Services
 
         public PagedList<RecipeEntity> GetPage(Parameters parameters)
         {
-            var recipes = GetAll().ToList();
+            List<RecipeEntity> recipes;
+            if (string.IsNullOrWhiteSpace(parameters.Author))
+                recipes = GetAll().ToList();
+            else
+                recipes = GetUserRecipes(parameters.Author).ToList();
             return PagedList<RecipeEntity>
                 .ToPagedList(recipes,
                     parameters.PageNumber,
@@ -270,6 +333,9 @@ namespace Recipes.Server.Services
 
         private RecipeEntity PrepareRecipeEntityForEF(RecipeEntity recipeToPrepare)
         {
+            var user = _context.Users.FirstOrDefault(u => u.UserName == recipeToPrepare.Author);
+            recipeToPrepare.User = user;
+            recipeToPrepare.UserId = user.Id;
             var ii = new HashSet<IngredientWithQuantityEntity>(recipeToPrepare.IngredientsWithQuantities.AsEnumerable());
             recipeToPrepare.IngredientsWithQuantities.Clear();
             foreach (var i in ii)

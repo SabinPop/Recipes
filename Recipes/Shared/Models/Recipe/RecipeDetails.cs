@@ -9,5 +9,7 @@ namespace Recipes.Shared.Models
         // to see recipes tags on the Recipes/Home page
 
         public HashSet<Tag> Tags { get; set; }
+
+        public bool IsFavorite { get; set; }
     }
 }

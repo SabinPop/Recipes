@@ -7,6 +7,8 @@ namespace Recipes.Shared.Models
         // I actually don't know if I need this
         public int RecipeId { get; set; }
 
+        public bool IsFavorite { get; set; }
+
         public Dictionary<string, decimal> NutritionalValuesDictionary()
         {
             var x = new Dictionary<string, decimal>

@@ -1,4 +1,4 @@
-﻿@page "/recipes"
+﻿@page "/my/favorites"
 
 @using Recipes.Shared.Models
 @using Recipes.Shared.Paging
@@ -8,7 +8,7 @@
 @using Newtonsoft.Json
 @using Recipes.Client.Components
 
-@inject IHttpClientFactory ClientFactory
+@inject HttpClient PrivateHttp
 @inject NavigationManager NavigationManager
 
 
@@ -24,38 +24,47 @@ else if (Recipes.Count() == 0)
 }
 else
 {
-<h2 class="ma-6">Recipes - Page </h2>
-<MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
-    @foreach (var recipe in Recipes)
-    {
-        <RecipePartial RecipeDetails="@recipe"></RecipePartial>
-    }
-</MudGrid>
+    <h2 class="ma-6"> My favorite recipes</h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach (var recipe in Recipes)
+        {
+            <RecipePartial RecipeDetails="@recipe"></RecipePartial>
+        }
+    </MudGrid>
 }
 
 @code {
-
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationState { get; set; }
+
+    [Parameter]
+    public string Author { get; set; } = null;
 
     HttpClient publicHttpClient;
     List<RecipeDetails> Recipes = new List<RecipeDetails>();
 
     private bool isLoading = false;
 
-    private string _user = string.Empty;
+    private string _user;
+
+    private bool _isMy = false;
 
     protected override async Task OnInitializedAsync()
     {
-        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
-
         var authState = await AuthenticationState;
-        if(authState.User.Identity.IsAuthenticated)
-            _user = authState.User.Identity.Name;
+        _user = authState.User.Identity.Name;
 
-        isLoading = true;
-        Recipes = await GetAllAsync();
-        isLoading = false;
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            _isMy = true;
+            isLoading = true;
+            Recipes = await GetAllAsync();
+            isLoading = false;
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
+        }
     }
 
     private async Task<List<RecipeDetails>> GetAllAsync()
@@ -63,14 +72,13 @@ else
         var i = new List<RecipeDetails>();
         var param = new Dictionary<string, string>
         {
-            ["pagination"] = "false",
             ["username"] = _user
         };
-        var uri = QueryHelpers.AddQueryString("api/Recipe", queryString: param);
+        var uri = QueryHelpers.AddQueryString("api/Recipe/my/favorites", queryString: param);
         try
         {
 
-            var response = await publicHttpClient.GetAsync(uri);
+            var response = await PrivateHttp.GetAsync(uri);
             var content = await response.Content.ReadAsStringAsync();
             i = JsonConvert.DeserializeObject<List<RecipeDetails>>(content);
         }

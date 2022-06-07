@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Recipes.Server.Automapper.Profiles;
 using Recipes.Server.Data;
@@ -12,6 +16,8 @@ using Recipes.Server.Models;
 using Recipes.Server.Models.Entities;
 using Recipes.Server.Services;
 using Recipes.Server.Services.Interfaces;
+using Recipes.Shared.Authorization;
+using System.Security.Principal;
 
 namespace Recipes.Server
 {
@@ -35,13 +41,19 @@ namespace Recipes.Server
 
             services.AddAutoMapper(typeof(RecipeProfile));
 
+            // Authorization for Edit and Delete
+            services.AddSingleton<IAuthorizationHandler, RecipeAuthorizationHandler>();
+
+            services.AddHttpContextAccessor();
+
             services.AddScoped<IRepository<IngredientEntity, int>, IngredientService>();
             services.AddScoped<IRepository<RecipeEntity, int>, RecipeService>();
             services.AddScoped<IRepository<TagEntity, int>, TagService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddTransient<PopulateIngredientsTableService>();
 
-
+            
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -53,6 +65,12 @@ namespace Recipes.Server
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("EditDeletePolicy", policy =>
+                    policy.Requirements.Add(new OperationAuthorizationRequirement()));
+            });
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>

@@ -2,6 +2,7 @@
 
 @using Recipes.Shared.Models
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.WebUtilities
 @using Newtonsoft.Json
 @using System.Linq
@@ -11,202 +12,213 @@
 
 @using Client.Components
 
+@attribute [Authorize]
+
+@inject HttpClient PrivateHttp
 @inject IHttpClientFactory ClientFactory
 @inject IJSRuntime Js
 @inject NavigationManager NavigationManager
 
 <!-- @using FluentValidation-->
-<MudProgressLinear @ref="@ProgressBar" Color="Color.Secondary" Value="@ProgressValue" Class="@(progressBarClass)" Size="Size.Medium"/>
-<MudCard Class="mb-5">
-    <MudForm Model="@model" @ref="@form">
-        <MudCardContent>
-            <MudExpansionPanels MultiExpansion="true">
-                <MudExpansionPanel Text="Recipe Details" @bind-IsExpanded="firstIsExpanded">
-                    <MudTextField @bind-Value="model.Name"
-                                  For="@(() => model.Name)"
-                                  Immediate="true"
-                                  Label="Name"
-                                  Variant="Variant.Outlined"></MudTextField>
-                    <MudTextField @bind-Value="model.Description"
-                                  For="@(() => model.Description)"
-                                  Immediate="true"
-                                  Label="Description"
-                                  Variant="Variant.Outlined"
-                                  Lines="3"></MudTextField>
-                    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2">
-                        <MudItem xs="12" sm="12" md="6" lg="6">
-                            <MudNumericField @bind-Value="model.DurationInMinutes"
-                                             For="@(() => model.DurationInMinutes)"
-                                             Step="5"
-                                             Immediate="true"
-                                             Label="Duration"
-                                             Variant="Variant.Outlined"
-                                             Adornment="Adornment.End"
-                                             AdornmentText="minutes"></MudNumericField>
-                        </MudItem>
-                        <MudItem xs="12" sm="12" md="6" lg="6">
-                            <MudNumericField @bind-Value="model.NumberOfServings"
-                                             For="@(() => model.NumberOfServings)"
-                                             Immediate="true"
-                                             Label="Number of servings"
-                                             Variant="Variant.Outlined"
-                                             AdornmentIcon="@Icons.Material.Filled.Numbers"></MudNumericField>
-                        </MudItem>
-                    </MudGrid>
-                </MudExpansionPanel>
-                <MudExpansionPanel Text="Ingredients">
-                    <MudAutocomplete @ref="@mudAutocomplete"
-                                     T="IngredientView" Label="Search ingredients"
-                                     @bind-Value="searchValue"
-                                     SearchFunc="@SearchIngredients"
-                                     AdornmentIcon="@Icons.Material.Filled.Search"
-                                     AdornmentColor="Color.Primary"
-                                     ToStringFunc="((x) => x.Name)"
-                                     Variant="Variant.Filled"
-                                     Immediate="false"
-                                     Clearable="true"></MudAutocomplete>
+<AuthorizeView>
+    <Authorized>
+        <MudProgressLinear @ref="@ProgressBar" Color="Color.Secondary" Value="@ProgressValue" Class="@(progressBarClass)" Size="Size.Medium" />
+        <MudCard Class="mb-5">
+            <MudForm Model="@model" @ref="@form">
+                <MudCardContent>
+                    <MudExpansionPanels MultiExpansion="true">
+                        <MudExpansionPanel Text="Recipe Details" @bind-IsExpanded="firstIsExpanded">
+                            <MudTextField @bind-Value="model.Name"
+                                          For="@(() => model.Name)"
+                                          Immediate="true"
+                                          Label="Name"
+                                          Variant="Variant.Outlined"></MudTextField>
+                            <MudTextField @bind-Value="model.Description"
+                                          For="@(() => model.Description)"
+                                          Immediate="true"
+                                          Label="Description"
+                                          Variant="Variant.Outlined"
+                                          Lines="3"></MudTextField>
+                            <MudGrid Justify="Justify.SpaceEvenly" Spacing="2">
+                                <MudItem xs="12" sm="12" md="6" lg="6">
+                                    <MudNumericField @bind-Value="model.DurationInMinutes"
+                                                     For="@(() => model.DurationInMinutes)"
+                                                     Step="5"
+                                                     Immediate="true"
+                                                     Label="Duration"
+                                                     Variant="Variant.Outlined"
+                                                     Adornment="Adornment.End"
+                                                     AdornmentText="minutes"></MudNumericField>
+                                </MudItem>
+                                <MudItem xs="12" sm="12" md="6" lg="6">
+                                    <MudNumericField @bind-Value="model.NumberOfServings"
+                                                     For="@(() => model.NumberOfServings)"
+                                                     Immediate="true"
+                                                     Label="Number of servings"
+                                                     Variant="Variant.Outlined"
+                                                     AdornmentIcon="@Icons.Material.Filled.Numbers"></MudNumericField>
+                                </MudItem>
+                            </MudGrid>
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="Ingredients">
+                            <MudAutocomplete @ref="@mudAutocomplete"
+                                             T="IngredientView" Label="Search ingredients"
+                                             @bind-Value="searchValue"
+                                             SearchFunc="@SearchIngredients"
+                                             AdornmentIcon="@Icons.Material.Filled.Search"
+                                             AdornmentColor="Color.Primary"
+                                             ToStringFunc="((x) => x.Name)"
+                                             Variant="Variant.Filled"
+                                             Immediate="false"
+                                             Clearable="true"></MudAutocomplete>
 
-                    <MudTable @ref="@ingredientsTable" T="IngredientWithQuantity"
-                              Items="model.IngredientsWithQuantities"
-                              CanCancelEdit="true"
-                              RowEditPreview="BackupIQ"
-                              RowEditCancel="ResetIQ"
-                              RowEditCommit="CommitIQ">
-                        <HeaderContent>
-                            <MudTh>
-                                <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Name)">
-                                    Name
-                                </MudTableSortLabel>
-                            </MudTh>
-                            <MudTh>
-                                <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Quantity)">
-                                    Quantity (grams)
-                                </MudTableSortLabel>
-                            </MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="Name">@context.Name</MudTd>
-                            <MudTd DataLabel="Quantity (g)">@context.Quantity</MudTd>
-                            <MudTd>
-                                <MudChip Color="MudBlazor.Color.Error"
-                                         Text="Remove"
-                                         OnClick="(() => model.IngredientsWithQuantities.Remove(context))">
+                            <MudTable @ref="@ingredientsTable" T="IngredientWithQuantity"
+                                      Items="model.IngredientsWithQuantities"
+                                      CanCancelEdit="true"
+                                      RowEditPreview="BackupIQ"
+                                      RowEditCancel="ResetIQ"
+                                      RowEditCommit="CommitIQ">
+                                <HeaderContent>
+                                    <MudTh>
+                                        <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Name)">
+                                            Name
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                    <MudTh>
+                                        <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Quantity)">
+                                            Quantity (grams)
+                                        </MudTableSortLabel>
+                                    </MudTh>
+                                </HeaderContent>
+                                <RowTemplate Context="mudContext">
+                                    <MudTd DataLabel="Name">@mudContext.Name</MudTd>
+                                    <MudTd DataLabel="Quantity (g)">@mudContext.Quantity</MudTd>
+                                    <MudTd>
+                                        <MudChip Color="MudBlazor.Color.Error"
+                                                 Text="Remove"
+                                                 OnClick="(() => model.IngredientsWithQuantities.Remove(mudContext))">
 
-                                </MudChip>
-                            </MudTd>
-                        </RowTemplate>
-                        <RowEditingTemplate>
-                            <MudTd DataLabel="Name">@context.Name</MudTd>
-                            <MudTd DataLabel="Quantity">
-                                <MudNumericField Variant="Variant.Outlined" @bind-Value="@context.Quantity" Required Min="1" Step="5"></MudNumericField>
-                            </MudTd>
-                        </RowEditingTemplate>
+                                        </MudChip>
+                                    </MudTd>
+                                </RowTemplate>
+                                <RowEditingTemplate Context="mudContext">
+                                    <MudTd DataLabel="Name">@mudContext.Name</MudTd>
+                                    <MudTd DataLabel="Quantity">
+                                        <MudNumericField Variant="Variant.Outlined" @bind-Value="@mudContext.Quantity" Required Min="1" Step="5"></MudNumericField>
+                                    </MudTd>
+                                </RowEditingTemplate>
 
-                    </MudTable>
-                </MudExpansionPanel>
-                <MudExpansionPanel Text="Recipe Steps">
-                    <MudTable @ref="@stepsTable" T="RecipeStep"
-                              Items="model.RecipeSteps"
-                              CanCancelEdit="true"
-                              RowEditPreview="BackupRS"
-                              RowEditCancel="ResetRS">
-                        <HeaderContent>
-                            <MudTh>
-                                Number
-                            </MudTh>
-                            <MudTh>
-                                Title
-                            </MudTh>
-                            <MudTh>
-                                Description
-                            </MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="Number">@context.StepNumber</MudTd>
-                            <MudTd DataLabel="Title">@context.StepTitle</MudTd>
-                            <MudTd DataLabel="Description">@context.StepDescription</MudTd>
-                            <MudTd>
-                                <MudChip Color="MudBlazor.Color.Error"
-                                         Text="Remove"
-                                         OnClick="(() => model.RecipeSteps.Remove(context))">
+                            </MudTable>
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="Recipe Steps">
+                            <MudTable @ref="@stepsTable" T="RecipeStep"
+                                      Items="model.RecipeSteps"
+                                      CanCancelEdit="true"
+                                      RowEditPreview="BackupRS"
+                                      RowEditCancel="ResetRS">
+                                <HeaderContent>
+                                    <MudTh>
+                                        Number
+                                    </MudTh>
+                                    <MudTh>
+                                        Title
+                                    </MudTh>
+                                    <MudTh>
+                                        Description
+                                    </MudTh>
+                                </HeaderContent>
+                                <RowTemplate Context="mudContext">
+                                    <MudTd DataLabel="Number">@mudContext.StepNumber</MudTd>
+                                    <MudTd DataLabel="Title">@mudContext.StepTitle</MudTd>
+                                    <MudTd DataLabel="Description">@mudContext.StepDescription</MudTd>
+                                    <MudTd>
+                                        <MudChip Color="MudBlazor.Color.Error"
+                                                 Text="Remove"
+                                                 OnClick="(() => model.RecipeSteps.Remove(mudContext))">
 
-                                </MudChip>
-                            </MudTd>
-                        </RowTemplate>
-                        <RowEditingTemplate>
-                            <MudTd DataLabel="Number">@context.StepNumber</MudTd>
-                            <MudTd DataLabel="Title">
-                                <MudTextField Variant="Variant.Outlined" @bind-Value="@context.StepTitle" Required />
-                            </MudTd>
-                            <MudTd DataLabel="Description">
-                                <MudTextField Variant="Variant.Outlined" @bind-Value="@context.StepDescription" Lines="3" Required />
-                            </MudTd>
-                        </RowEditingTemplate>
-                    </MudTable>
-                    <MudDivider DividerType="DividerType.Middle" Class="my-3" />
-                    <MudFab OnClick="() => AddStepOnClick()" Class="ma-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
-                    @*
-                                <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
-                                    @foreach (var item in model.RecipeSteps)
-                                    {
-                                        <MudTimelineItem Color="Color.Primary" Elevation="25" Variant="Variant.Filled">
-                                            <ItemDot>
-                                                <MudMenu Size="Size.Medium" Icon="@Icons.Material.Filled.MoreVert">
-                                                    <MudMenuItem>
-                                                        <MudButton Variant="Variant.Filled"
-                                                                   StartIcon="@Icons.Material.Filled.Delete"
-                                                                   Color="Color.Error"
-                                                                   OnClick="(() => RemoveStepOnClick(item))">Delete</MudButton>
-                                                    </MudMenuItem>
-                                                </MudMenu>
-                                            </ItemDot>
-                                            <ItemContent>
-                                                <Recipes.Client.Components.RecipeStepComp Title="@item.StepTitle"
-                                                                                          Description="@item.StepDescription"
-                                                                                          OnTitleChanged="((e) => item.StepTitle = e)"
-                                                                                          OnDescriptionChanged="((e) => item.StepDescription = e)" />
-                                            </ItemContent>
-                                        </MudTimelineItem>
-                                    }
-                                </MudTimeline>
-                                <MudFab OnClick="() => AddStepOnClick()" Class="my-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
-        </MudExpansionPanel>
-                    *@
-                </MudExpansionPanel>
-                <MudExpansionPanel Text="Tags">
-                    <MudChipSet Mandatory="true" OnClose="ClosedChip" AllClosable="true">
-                        @foreach(var item in AutoTags){
-                            <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Secondary" DisableRipple="true" Default="true"></MudChip>
-                        }
-                        @foreach(var item in model.Tags)
-                        {
-                            <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Primary" DisableRipple="true"></MudChip>
-                        }
-                    </MudChipSet>
+                                        </MudChip>
+                                    </MudTd>
+                                </RowTemplate>
+                                <RowEditingTemplate Context="mudContext">
+                                    <MudTd DataLabel="Number">@mudContext.StepNumber</MudTd>
+                                    <MudTd DataLabel="Title">
+                                        <MudTextField Variant="Variant.Outlined" @bind-Value="@mudContext.StepTitle" Required />
+                                    </MudTd>
+                                    <MudTd DataLabel="Description">
+                                        <MudTextField Variant="Variant.Outlined" @bind-Value="@mudContext.StepDescription" Lines="3" Required />
+                                    </MudTd>
+                                </RowEditingTemplate>
+                            </MudTable>
+                            <MudDivider DividerType="DividerType.Middle" Class="my-3" />
+                            <MudFab OnClick="() => AddStepOnClick()" Class="ma-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
+                            @*
+                                                    <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
+                                                        @foreach (var item in model.RecipeSteps)
+                                                        {
+                                                            <MudTimelineItem Color="Color.Primary" Elevation="25" Variant="Variant.Filled">
+                                                                <ItemDot>
+                                                                    <MudMenu Size="Size.Medium" Icon="@Icons.Material.Filled.MoreVert">
+                                                                        <MudMenuItem>
+                                                                            <MudButton Variant="Variant.Filled"
+                                                                                       StartIcon="@Icons.Material.Filled.Delete"
+                                                                                       Color="Color.Error"
+                                                                                       OnClick="(() => RemoveStepOnClick(item))">Delete</MudButton>
+                                                                        </MudMenuItem>
+                                                                    </MudMenu>
+                                                                </ItemDot>
+                                                                <ItemContent>
+                                                                    <Recipes.Client.Components.RecipeStepComp Title="@item.StepTitle"
+                                                                                                              Description="@item.StepDescription"
+                                                                                                              OnTitleChanged="((e) => item.StepTitle = e)"
+                                                                                                              OnDescriptionChanged="((e) => item.StepDescription = e)" />
+                                                                </ItemContent>
+                                                            </MudTimelineItem>
+                                                        }
+                                                    </MudTimeline>
+                                                    <MudFab OnClick="() => AddStepOnClick()" Class="my-2" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Label="Add Step" />
+                            </MudExpansionPanel>
+                            *@
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="Tags">
+                            <MudChipSet Mandatory="true" OnClose="ClosedChip" AllClosable="true">
+                                @foreach (var item in AutoTags)
+                                {
+                                    <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Secondary" DisableRipple="true" Default="true"></MudChip>
+                                }
+                                @foreach (var item in model.Tags)
+                                {
+                                    <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Primary" DisableRipple="true"></MudChip>
+                                }
+                            </MudChipSet>
 
-                    <MudTextField @ref="addTagTextField" T="string" Label="Add a tag" Variant="Variant.Outlined" 
-                                  Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Add" 
-                                  OnAdornmentClick="AddTag" Validation="new Func<string, bool>(TagValidation)" />
-                </MudExpansionPanel>
-                <MudExpansionPanel Text="Nutritional values">
-                    <MudTable Items="NutritionalValuesDictionary()">
-                        <RowTemplate>
-                            <MudTd>@context.Key</MudTd>
-                            <MudTd>@context.Value</MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudExpansionPanel>
-            </MudExpansionPanels>
+                            <MudTextField @ref="addTagTextField" T="string" Label="Add a tag" Variant="Variant.Outlined"
+                                          Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Add"
+                                          OnAdornmentClick="AddTag" Validation="new Func<string, bool>(TagValidation)" />
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="Nutritional values">
+                            <MudTable Items="NutritionalValuesDictionary()">
+                                <RowTemplate Context="mudContext">
+                                    <MudTd>@mudContext.Key</MudTd>
+                                    <MudTd>@mudContext.Value</MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
 
-        </MudCardContent>
-    </MudForm>
-</MudCard>
+                </MudCardContent>
+            </MudForm>
+        </MudCard>
 
-<MudFab Label="Create recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Done" 
-        Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px" 
-        OnClick="Post" />
+        <MudFab Label="Create recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Done"
+                Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px"
+                OnClick="Post" />
+    </Authorized>
+</AuthorizeView>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+
     [Inject] ISnackbar Snackbar { get; set; }
 
     MudForm form;
@@ -225,6 +237,7 @@
     HashSet<IngredientWithQuantity> selectedIngredients { get; set; } = new HashSet<IngredientWithQuantity>();
 
     private HttpClient publicHttpClient;
+    private HttpClient privateHttpClient;
 
     private IngredientView _searchValue = new IngredientView();
 
@@ -249,6 +262,7 @@
 
         var modelToPost = new RecipeCreate()
         {
+            Author = model.Author,
             Name = model.Name,
             Description = model.Description,
             NumberOfServings = model.NumberOfServings,
@@ -259,7 +273,7 @@
             NutritionalValues = model.NutritionalValues
         };
         modelToPost.Tags.UnionWith(AutoTags);
-        var response = await publicHttpClient.PostAsJsonAsync("api/Recipe", modelToPost);
+        var response = await PrivateHttp.PostAsJsonAsync("api/Recipe", modelToPost);
         if (response.IsSuccessStatusCode)
         {
             var location = response.Headers.GetValues("Location").First();
@@ -372,9 +386,25 @@
 
     public HashSet<TagEdit> AutoTags = new HashSet<TagEdit>();
 
+    private bool _userIsAuthenticated = false;
+
     protected override async Task OnInitializedAsync()
     {
         publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
+
+        var authState = await AuthenticationState;
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            _userIsAuthenticated = true;
+            model.Author = user.Identity.Name;
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
+        }
+
         //model.IngredientsWithQuantities = selectedIngredients;
 
         //Stopwatch stopwatch = new Stopwatch();

@@ -1,9 +1,9 @@
 ﻿@using Recipes.Client.Shared
 
 @inherits LayoutComponentBase
+@inject IJSRuntime JS 
 
-
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" @ref="_mudThemeProvider"/>
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -11,8 +11,14 @@
     <MudAppBar>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         RecipesApp
-        <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Switch theme" />
-
+        @*
+            
+            <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Switch theme"></MudSwitch>
+        
+            
+        *@
+        <MudSpacer></MudSpacer>
+        <LoginDisplayMud></LoginDisplayMud>
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
         <NavMenuMud />
@@ -23,14 +29,27 @@
         </MudContainer>
     </MudMainContent>
 </MudLayout>
+
 @code {
     bool _drawerOpen = true;
     private bool _isDarkMode;
     private MudTheme _theme = new MudTheme();
 
+    private MudThemeProvider _mudThemeProvider;
+
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await JS.InvokeAsync<bool>("IsDarkTheme");
+            //_isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+        }
     }
 
 }

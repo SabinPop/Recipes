@@ -17,5 +17,7 @@
                 _pageSize = value > _pageSize ? maxPageSize : value;
             }
         }
+        public string Author { get; set; }
+        public string UserName { get; set; }
     }
 }

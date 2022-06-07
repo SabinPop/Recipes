@@ -3,36 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Recipes.Server.Data;
 
 namespace Recipes.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220603170835_RecipeWithAuthor2")]
+    partial class RecipeWithAuthor2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.14")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("ApplicationUserRecipeEntity", b =>
-                {
-                    b.Property<int>("FavoriteRecipesRecipeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsersWhoLikedThisId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("FavoriteRecipesRecipeId", "UsersWhoLikedThisId");
-
-                    b.HasIndex("UsersWhoLikedThisId");
-
-                    b.ToTable("ApplicationUserRecipeEntity");
-                });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
                 {
@@ -463,6 +450,9 @@ namespace Recipes.Server.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Author")
                         .HasColumnType("nvarchar(max)");
 
@@ -488,6 +478,8 @@ namespace Recipes.Server.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("RecipeId");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("UserId");
 
@@ -533,21 +525,6 @@ namespace Recipes.Server.Migrations
                     b.HasKey("TagId");
 
                     b.ToTable("Tags");
-                });
-
-            modelBuilder.Entity("ApplicationUserRecipeEntity", b =>
-                {
-                    b.HasOne("Recipes.Server.Models.Entities.RecipeEntity", null)
-                        .WithMany()
-                        .HasForeignKey("FavoriteRecipesRecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Recipes.Server.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsersWhoLikedThisId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -659,6 +636,10 @@ namespace Recipes.Server.Migrations
 
             modelBuilder.Entity("Recipes.Server.Models.Entities.RecipeEntity", b =>
                 {
+                    b.HasOne("Recipes.Server.Models.ApplicationUser", null)
+                        .WithMany("FavoriteRecipes")
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("Recipes.Server.Models.ApplicationUser", "User")
                         .WithMany("UserRecipes")
                         .HasForeignKey("UserId");
@@ -679,6 +660,8 @@ namespace Recipes.Server.Migrations
 
             modelBuilder.Entity("Recipes.Server.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("FavoriteRecipes");
+
                     b.Navigation("UserRecipes");
                 });
 

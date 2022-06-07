@@ -4,6 +4,8 @@ namespace Recipes.Shared.Models
 {
     public class Recipe : RecipeBase
     {
+        public string Author { get; set; }
+
         public NutritionalValues NutritionalValues { get; set; } = new NutritionalValues();
 
         public HashSet<IngredientWithQuantity> IngredientsWithQuantities { get; set; }
