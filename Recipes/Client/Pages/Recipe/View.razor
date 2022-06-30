@@ -9,12 +9,16 @@
 <Recipes.Client.Components.Recipe Model="Model" @ref="Recipe">
 
 </Recipes.Client.Components.Recipe>
-@if (_user == Model.Author) 
-{ 
-    <MudFab Label="Edit recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit"
-            Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px"
-            OnClick="RedirectToEditPage" />
-}
+<AuthorizeView>
+    <Authorized>
+        @if (_user == Model.Author)
+        {
+            <MudFab Label="Edit recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit"
+                    Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px"
+                    OnClick="RedirectToEditPage" />
+        }
+    </Authorized>
+</AuthorizeView>
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> AuthenticationState { get; set; }
@@ -29,6 +33,8 @@
     private HttpClient publicHttpClient;
 
     private string _user;
+
+    private bool _isLoggedIn = false;
 
     private void RedirectToEditPage()
     {
@@ -55,6 +61,7 @@
     {
         var authState = await AuthenticationState;
         _user = authState.User.Identity.Name;
+        _isLoggedIn = authState.User.Identity.IsAuthenticated;
         publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
         Model = await GetRecipeAsync(Id);
         await Recipe.HideProgressBar();

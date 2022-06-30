@@ -13,12 +13,12 @@ namespace Recipes.Server.Services.Interfaces
     public interface IUserService
     {
         bool AddRecipeToFavorites(RecipeEntity recipe, string username);
-        public bool Exists(string username);
+        bool Exists(string username);
         ClaimsPrincipal GetUser();
         ApplicationUser GetUserByUserName(string username);
         List<RecipeEntity> GetUserFavoriteRecipes(string username);
         bool HasFavorites(string username);
-        public bool HasPublishedRecipes(string username);
+        bool HasPublishedRecipes(string username);
         bool IsRecipeFavorite(UserRecipeRequest request);
         bool RemoveRecipeFromFavorites(int recipeId, string username);
     }

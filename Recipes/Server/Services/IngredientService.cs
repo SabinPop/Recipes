@@ -89,11 +89,10 @@ namespace Recipes.Server.Services
                     parameters.PageNumber,
                     parameters.PageSize);
         }
-
-
-        //get ingredients that start with {string}
+        
         public IQueryable<IngredientEntity> GetStartingWithString(string name)
         {
+            //get ingredients that start with {string}
             return _context.Ingredients.AsNoTracking().Where(i => i.Name.ToLower().StartsWith(name.ToLower()));
         }
 

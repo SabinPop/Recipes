@@ -31,9 +31,6 @@ namespace Recipes.Server.Models.Entities
         [Range(1, 12, ErrorMessage = "Number of servings must be between 1 and 12")]
         public int NumberOfServings { get; set; }
 
-        //public string ImageUrl { get; set; }
-
-
         public string Author { get; set; }
 
         public ApplicationUser User { get; set; }
@@ -41,13 +38,9 @@ namespace Recipes.Server.Models.Entities
         [ForeignKey(nameof(UserId))]
         public string UserId { get; set; }
 
-
         public virtual HashSet<ApplicationUser> UsersWhoLikedThis { get; set; }
-
-
         public HashSet<IngredientWithQuantityEntity> IngredientsWithQuantities { get; set; }
         public List<RecipeStepEntity> RecipeSteps { get; set; }
-
         public HashSet<TagEntity> Tags { get; set; }
 
         public NutritionalValuesRecipeEntity NutritionalValues { get; set; }

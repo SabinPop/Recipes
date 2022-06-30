@@ -110,9 +110,9 @@ namespace Recipes.Server.Services
             return _userService.IsRecipeFavorite(request);
         }
 
-        // mark/unmark recipe as favorite for the user
         public MarkAsFavoriteResponse MarkAsFavorite(UserRecipeRequest request)
         {
+            // mark/unmark recipe as favorite for the user
             if (!Exists(request.RecipeId))
                 return MarkAsFavoriteResponse.RecipeDoesNotExist;
             var recipe = _context.Recipes.FirstOrDefault(r => r.RecipeId == request.RecipeId);

@@ -1,4 +1,5 @@
-﻿@page "/recipes"
+﻿@page "/"
+@page "/recipes"
 
 @using Recipes.Shared.Models
 @using Recipes.Shared.Paging
@@ -24,13 +25,22 @@ else if (Recipes.Count() == 0)
 }
 else
 {
-<h2 class="ma-6">Recipes - Page </h2>
-<MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
-    @foreach (var recipe in Recipes)
-    {
-        <RecipePartial RecipeDetails="@recipe"></RecipePartial>
-    }
-</MudGrid>
+    <h2 class="ma-6">Recipes - Page </h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach (var recipe in Recipes)
+        {
+            <RecipePartial RecipeDetails="@recipe"></RecipePartial>
+        }
+    </MudGrid>
+    <AuthorizeView>
+        <Authorized>
+
+            <MudFab Label="Create recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                    Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px"
+                    OnClick="CreateRecipe" />
+
+        </Authorized>
+    </AuthorizeView>
 }
 
 @code {
@@ -45,12 +55,17 @@ else
 
     private string _user = string.Empty;
 
+    private void CreateRecipe()
+    {
+        NavigationManager.NavigateTo("/recipes/create");
+    }
+
     protected override async Task OnInitializedAsync()
     {
         publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
 
         var authState = await AuthenticationState;
-        if(authState.User.Identity.IsAuthenticated)
+        if (authState.User.Identity.IsAuthenticated)
             _user = authState.User.Identity.Name;
 
         isLoading = true;

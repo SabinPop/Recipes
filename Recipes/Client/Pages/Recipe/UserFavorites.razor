@@ -63,7 +63,8 @@ else
         }
         else
         {
-            NavigationManager.NavigateTo($"authentication/login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}");
+            NavigationManager.NavigateTo($"authentication/login?returnUrl=" +
+                $"{Uri.EscapeDataString(NavigationManager.Uri)}");
         }
     }
 

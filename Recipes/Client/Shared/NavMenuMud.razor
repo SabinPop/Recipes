@@ -1,10 +1,70 @@
-﻿<MudNavMenu>
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+
+<MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
     <MudNavLink Href="/ingredients" Match="NavLinkMatch.Prefix">Ingredients</MudNavLink>
     <MudNavLink Href="/recipes" Match="NavLinkMatch.Prefix">Recipes</MudNavLink>
     <MudNavLink Href="/tags" Match="NavLinkMatch.Prefix">Tags</MudNavLink>
     <AuthorizeView>
-        <MudNavLink Href="/my/recipes" Match="NavLinkMatch.Prefix">My recipes</MudNavLink>
-        <MudNavLink Href="/my/favorites" Match="NavLinkMatch.Prefix">My favorites</MudNavLink>
+        <Authorized>
+            
+            <MudNavGroup Title="Account" Style="align-self: flex-end;">
+                <MudNavLink Href="/my/recipes" Match="NavLinkMatch.Prefix">My recipes</MudNavLink>
+                <MudNavLink Href="/my/favorites" Match="NavLinkMatch.Prefix">My favorites</MudNavLink>
+                <MudDivider Vertical="false" DividerType="DividerType.Middle"></MudDivider>
+                <MudNavLink OnClick="Profile" Match="NavLinkMatch.Prefix">Profile</MudNavLink>
+                <MudNavLink OnClick="BeginSignOut" Match="NavLinkMatch.Prefix">Log out</MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+        <NotAuthorized>
+            <MudNavGroup Title="Account" Style="align-self: flex-end;">
+                <MudNavLink OnClick="LogIn" Match="NavLinkMatch.Prefix">Log in</MudNavLink>
+                <MudNavLink OnClick="Register" Match="NavLinkMatch.Prefix">Register</MudNavLink>
+                @*
+        <MudSwitch @bind-Checked="@_isDarkMode" CheckedChanged="ToggleDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Switch theme"></MudSwitch>
+                *@
+            </MudNavGroup>
+        </NotAuthorized>
     </AuthorizeView>
+
 </MudNavMenu>
+
+@code{
+    //private bool _isDarkMode;
+
+    //private void ToggleDarkMode()
+    //{
+
+    //}
+
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+
+    private void NavigateTo(string href)
+    {
+        Navigation.NavigateTo(href);
+    }
+
+
+    private void LogIn()
+    {
+        NavigateTo("authentication/login");
+    }
+
+    private void Register()
+    {
+        NavigateTo("authentication/register");
+    }
+
+    private void Profile()
+    {
+        NavigateTo("authentication/profile");
+    }
+}

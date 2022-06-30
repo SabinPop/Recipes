@@ -6,7 +6,6 @@
 
 @inject IHttpClientFactory ClientFactory
 
-
 @if (isLoading == true)
 {
     <Loading></Loading>
@@ -30,7 +29,6 @@ else
 @code {
     HttpClient publicHttpClient;
     List<TagEdit> Tags = new List<TagEdit>();
-
     private bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
@@ -44,17 +42,17 @@ else
 
     private async Task<List<TagEdit>> GetAllAsync()
     {
-        var t = new List<TagEdit>();
+        var tags = new List<TagEdit>();
         try
         {
             var response = await publicHttpClient.GetAsync("api/tag");
             var content = await response.Content.ReadAsStringAsync();
-            t = JsonConvert.DeserializeObject<List<TagEdit>>(content);
+            tags = JsonConvert.DeserializeObject<List<TagEdit>>(content);
         }
         catch (Exception)
         {
 
         }
-        return t;
+        return tags;
     }
 }

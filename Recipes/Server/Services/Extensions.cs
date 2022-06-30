@@ -10,29 +10,42 @@ namespace Recipes.Server.Services
 {
     public static class Extensions
     {
-        public static RecipeDetails InjectFavorite(this RecipeDetails recipe, IUserService service, UserRecipeRequest request)
+        public static RecipeDetails InjectFavorite(this RecipeDetails recipe,
+                                                   IUserService service,
+                                                   UserRecipeRequest request)
         {
             recipe.IsFavorite = service.IsRecipeFavorite(request);
             return recipe;
         }
 
-        public static IEnumerable<RecipeDetails> InjectFavorite(this IEnumerable<RecipeDetails> recipes, IUserService service, string username)
+        public static IEnumerable<RecipeDetails> InjectFavorite(this IEnumerable<RecipeDetails> recipes,
+                                                                IUserService service,
+                                                                string username)
         {
             if (service.Exists(username)){
                 foreach (var r in recipes) {
-                    r.IsFavorite = service.IsRecipeFavorite(new UserRecipeRequest() { RecipeId = r.RecipeId, UserName = username });
+                    r.IsFavorite = service.IsRecipeFavorite(
+                        new UserRecipeRequest() 
+                        { 
+                            RecipeId = r.RecipeId, 
+                            UserName = username 
+                        });
                 }
             }
             return recipes;
         }
 
-        public static RecipeView InjectFavorite(this RecipeView recipe, IUserService service, UserRecipeRequest request)
+        public static RecipeView InjectFavorite(this RecipeView recipe,
+                                                IUserService service,
+                                                UserRecipeRequest request)
         {
             recipe.IsFavorite = service.IsRecipeFavorite(request);
             return recipe;
         }
 
-        public static IEnumerable<RecipeView> InjectFavorite(this IEnumerable<RecipeView> recipes, IUserService service, UserRecipeRequest request)
+        public static IEnumerable<RecipeView> InjectFavorite(this IEnumerable<RecipeView> recipes,
+                                                             IUserService service,
+                                                             UserRecipeRequest request)
         {
             foreach (var r in recipes)
             {

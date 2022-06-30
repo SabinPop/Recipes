@@ -25,7 +25,10 @@ namespace Recipes.Server.Controllers
         private readonly UserManager<ApplicationUser> manager;
         private readonly IMapper _mapper;
 
-        public RecipeController(IRepository<RecipeEntity, int> service, IMapper mapper, IUserService userService, UserManager<ApplicationUser> manager)
+        public RecipeController(IRepository<RecipeEntity, int> service,
+                                IMapper mapper,
+                                IUserService userService,
+                                UserManager<ApplicationUser> manager)
         {
             _service = service;
             _mapper = mapper;
@@ -92,14 +95,17 @@ namespace Recipes.Server.Controllers
         [HttpGet("my/favorites")]
         public async Task<IActionResult> GetUserFavorites([FromQuery] string username)
         {
-            var recipes = _mapper.Map<IEnumerable<RecipeDetails>>((_service as RecipeService).GetUserFavorites(username)).InjectFavorite(_userService, username);
+            var recipes = _mapper.Map<IEnumerable<RecipeDetails>>((_service as RecipeService)
+                            .GetUserFavorites(username))
+                            .InjectFavorite(_userService, username);
             return Ok(recipes);
         }
 
         [HttpGet("by/{author}")]
         public async Task<IActionResult> GetRecipesByAuthor(string author)
         {
-            var recipes = _mapper.Map<IEnumerable<RecipeDetails>>((_service as RecipeService).GetUserRecipes(author));
+            var recipes = _mapper.Map<IEnumerable<RecipeDetails>>((_service as RecipeService)
+                            .GetUserRecipes(author));
             return Ok(recipes);
         }
 

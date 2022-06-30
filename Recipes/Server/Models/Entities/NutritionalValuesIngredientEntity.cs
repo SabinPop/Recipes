@@ -2,12 +2,11 @@
 
 namespace Recipes.Server.Models.Entities
 {
-    public class NutritionalValuesIngredientEntity : NutritionalValuesBase //: IEquatable<NutritionalValuesEntity>
+    public class NutritionalValuesIngredientEntity : NutritionalValuesBase
     {
         public IngredientEntity Ingredient { get; set; }
 
         [ForeignKey(nameof(IngredientId))]
         public int IngredientId { get; set; }
-
     }
 }
