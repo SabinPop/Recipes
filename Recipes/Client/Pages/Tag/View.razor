@@ -1,0 +1,71 @@
+﻿@page "/tags/view/{tagName}"
+
+@using Recipes.Shared.Models
+@using Recipes.Client.Components 
+@using Newtonsoft.Json
+
+@inject IHttpClientFactory ClientFactory
+
+@if(isLoading == true)
+{
+    <Loading></Loading>
+}
+else if (Recipes.Count() == 0)
+{
+    <MudText Typo="Typo.body1">
+        No recipes tagged with @TagName found
+    </MudText>
+}
+else
+{
+<h2 class="ma-6">Recipes tagged with "@TagName" - Page </h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach(var recipe in Recipes)
+        {
+            <RecipePartial RecipeDetails="@recipe" TagClickCallback="TagClick"></RecipePartial>
+        }
+    </MudGrid>
+}
+
+@code {
+    [Parameter]
+    public string TagName { get; set; }
+
+    private bool isLoading = false;
+
+    HttpClient publicHttpClient;
+    List<RecipeDetails> Recipes = new List<RecipeDetails>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
+
+        isLoading = true;
+        Recipes = await GetRecipesWithTag();
+        isLoading = false;
+    }
+
+    private async Task TagClick(string tag)
+    {
+        TagName = tag;
+        //
+        Recipes = await GetRecipesWithTag();
+    }
+
+    private async Task<List<RecipeDetails>> GetRecipesWithTag()
+    {
+        var i = new List<RecipeDetails>();
+        string[] tagList = { TagName };
+        try
+        {
+            var response = await publicHttpClient.PostAsJsonAsync("api/Recipe/tags", tagList);
+            var content = await response.Content.ReadAsStringAsync();
+            i = JsonConvert.DeserializeObject<List<RecipeDetails>>(content);
+        }
+        catch (Exception)
+        {
+
+        }
+        return i;
+    }
+}

@@ -1,0 +1,58 @@
+﻿@page "/tags"
+
+@using Recipes.Shared.Models
+@using Recipes.Client.Components
+@using Newtonsoft.Json
+
+@inject IHttpClientFactory ClientFactory
+
+@if (isLoading == true)
+{
+    <Loading></Loading>
+}
+else if (Tags.Count() == 0)
+{
+    <MudText Typo="Typo.body1">
+        No tags found
+    </MudText>  }
+else
+{
+    <h2 class="ma-6">Tags - Page </h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach (var tag in Tags)
+        {
+            <TagView Tag="tag"></TagView>
+        }
+    </MudGrid>
+}
+
+@code {
+    HttpClient publicHttpClient;
+    List<TagEdit> Tags = new List<TagEdit>();
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
+
+        isLoading = true;
+        Tags = await GetAllAsync();
+        isLoading = false;
+    }
+
+    private async Task<List<TagEdit>> GetAllAsync()
+    {
+        var tags = new List<TagEdit>();
+        try
+        {
+            var response = await publicHttpClient.GetAsync("api/tag");
+            var content = await response.Content.ReadAsStringAsync();
+            tags = JsonConvert.DeserializeObject<List<TagEdit>>(content);
+        }
+        catch (Exception)
+        {
+
+        }
+        return tags;
+    }
+}

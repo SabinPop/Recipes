@@ -1,0 +1,69 @@
+﻿@page "/recipes/view/{id:int}"
+
+@using Recipes.Shared.Models
+@using Newtonsoft.Json
+
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+
+<Recipes.Client.Components.Recipe Model="Model" @ref="Recipe">
+
+</Recipes.Client.Components.Recipe>
+<AuthorizeView>
+    <Authorized>
+        @if (_user == Model.Author)
+        {
+            <MudFab Label="Edit recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit"
+                    Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px"
+                    OnClick="RedirectToEditPage" />
+        }
+    </Authorized>
+</AuthorizeView>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private RecipeView Model = new RecipeView();
+
+    private Client.Components.Recipe Recipe;
+
+    private HttpClient publicHttpClient;
+
+    private string _user;
+
+    private bool _isLoggedIn = false;
+
+    private void RedirectToEditPage()
+    {
+        NavigationManager.NavigateTo($"/recipes/edit/{Id}");
+    }
+
+    private async Task<RecipeView> GetRecipeAsync(int id)
+    {
+        var recipe = new RecipeView();
+        try
+        {
+            var response = await publicHttpClient.GetAsync($"api/Recipe/{id}");
+            var content = await response.Content.ReadAsStringAsync();
+            recipe = JsonConvert.DeserializeObject<RecipeView>(content);
+        }
+        catch (Exception)
+        {
+
+        }
+        return recipe;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        _user = authState.User.Identity.Name;
+        _isLoggedIn = authState.User.Identity.IsAuthenticated;
+        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
+        Model = await GetRecipeAsync(Id);
+        await Recipe.HideProgressBar();
+    }
+}

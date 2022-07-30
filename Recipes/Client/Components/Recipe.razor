@@ -1,0 +1,148 @@
+﻿@using Recipes.Shared.Models
+@using Microsoft.AspNetCore.Authorization
+@using Newtonsoft.Json
+
+@inject IHttpClientFactory ClientFactory
+
+@if (Model.RecipeId == 0)
+{
+    <Loading></Loading>
+}
+else { 
+<MudProgressLinear @ref="@ProgressBar" Color="Color.Secondary" Value="@ProgressValue" Class="@(progressBarClass)" Size="Size.Medium" />
+<MudCard Class="mb-5">
+    <MudCardContent>
+        <MudExpansionPanels MultiExpansion="true">
+            <MudExpansionPanel Text="Recipe Details" @bind-IsExpanded="IsExpanded[0]">
+                <MudField Label="Name" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Title" Variant="Variant.Outlined">
+                    @Model.Name
+                </MudField>
+                <MudTextField T="string"
+                              Text="@Model.Description"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Description"
+                              ReadOnly="true"
+                              Label="Description"
+                              Variant="Variant.Outlined"
+                              Lines="5"></MudTextField>
+                <MudGrid Justify="Justify.FlexStart" Spacing="2">
+                    <MudItem xs="12" sm="12" md="6" lg="4">
+                        <MudField Label="Duration" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Timer" Variant="Variant.Outlined">
+                            @Model.DurationInMinutes minutes
+                        </MudField>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="6" lg="4">
+                        <MudField Label="Number of servings" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Numbers" Variant="Variant.Outlined">
+                            @Model.NumberOfServings servings
+                        </MudField>
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="6" lg="4">
+                        <MudLink Href="@AuthorLink">
+                            <MudField Label="User" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.PermIdentity" Variant="Variant.Outlined">
+                                @Model.Author
+                            </MudField>
+                        </MudLink>
+                        
+                    </MudItem>
+                    <MudItem xs="12" sm="12" md="6" lg="4">
+                        <MudField Label="Creation date" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.EditCalendar" Variant="Variant.Outlined">
+                            @Model.CreationDate.Date.ToShortDateString()
+                        </MudField>
+                    </MudItem>
+                </MudGrid>
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="Ingredients" @bind-IsExpanded="IsExpanded[1]">
+                <MudTable T="IngredientWithQuantity"
+                          Items="Model.IngredientsWithQuantities">
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Name)">
+                                Name
+                            </MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<IngredientWithQuantity, object>(x => x.Quantity)">
+                                Quantity (grams)
+                            </MudTableSortLabel>
+                        </MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Name</MudTd>
+                        <MudTd DataLabel="Quantity (g)">@context.Quantity</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="Recipe Steps" @bind-IsExpanded="IsExpanded[2]">
+                <MudTimeline TimelineAlign="TimelineAlign.Start" TimelinePosition="TimelinePosition.Start">
+                    @foreach (var item in Model.RecipeSteps)
+                    {
+                        <MudTimelineItem Color="Color.Primary" Elevation="25" Variant="Variant.Filled">
+                            <ItemContent>
+                                <Recipes.Client.Components.RecipeStepComp ReadOnly="true" Title="@item.StepTitle"
+                                                                            Description="@item.StepDescription" />
+                            </ItemContent>
+                        </MudTimelineItem>
+                    }
+                </MudTimeline>
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="Tags" @bind-IsExpanded="IsExpanded[3]">
+                <MudChipSet>
+                    @foreach (var item in Model.Tags)
+                    {
+                        <MudLink Href="@string.Concat("/tags/view/", item.Name)">
+                            <MudChip Variant="Variant.Outlined" Text="@item.Name" Color="Color.Primary" DisableRipple="true"></MudChip>
+                        </MudLink>
+                    }
+                    </MudChipSet>
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="Nutritional values" @bind-IsExpanded="IsExpanded[4]">
+                <MudTable Items="Model.NutritionalValuesDictionary()">
+                    <RowTemplate>
+                        <MudTd>@context.Key</MudTd>
+                        <MudTd>@context.Value</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+
+    </MudCardContent>
+</MudCard>
+}
+
+@code {
+    MudProgressLinear ProgressBar;
+
+    MudTable<IngredientWithQuantity> ingredientsTable;
+    MudTable<RecipeStep> stepsTable;
+
+    private bool[] IsExpanded = { true, true, true, true, true };
+
+    private string AuthorLink { get; set; }
+
+    [Parameter]
+    public RecipeView Model { get; set; }
+
+    private double ProgressValue { get; set; } = 1;
+
+    private string progressBarClass = "my-5";
+
+    protected override void OnParametersSet()
+    {
+        AuthorLink = $"recipes/by/{Model.Author}/";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProgressValue = 100;
+        await HideProgressBar();
+    }
+
+    public async Task HideProgressBar()
+    {
+        await Task.Delay(500);
+
+        progressBarClass += " hide";
+    }
+
+
+}

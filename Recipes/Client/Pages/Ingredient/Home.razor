@@ -1,0 +1,236 @@
+﻿@page "/ingredients"
+
+@using Recipes.Shared.Models
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Collections.Generic
+@using System.Collections
+@using Recipes.Shared.Paging
+@using Microsoft.AspNetCore.WebUtilities
+@using Newtonsoft.Json
+
+@inject IJSRuntime Js
+
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+
+
+
+@if (currentIngredientsPage == null)
+{
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="100px" Class="ma-6"/>
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="100px" Class="ma-6"/>
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Wave" Height="100px" Class="ma-6"/>
+    //<p><em>Loading...</em></p>
+}
+else
+{
+    <style>
+        .mud-tooltip-root{
+            width: auto !important;
+        }
+    </style>
+    <h2 class="ma-6">Ingredients - Page @_metaData.CurrentPage</h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach (var i in currentIngredientsPage)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="4" xl="3" xxl="2">
+                <MudPaper Elevation="3">
+                    <MudCard Class="mud-theme-primary">
+                        <MudCardContent>
+                            <MudTooltip Inline="false">
+                                <ChildContent>
+                                    <MudText Typo="Typo.h5" Style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                                        @i.Name
+                                    </MudText>
+                                </ChildContent>
+                                <TooltipContent>
+                                    <MudText Typo="Typo.body1">
+                                        @i.Name
+                                    </MudText>
+                                </TooltipContent>
+                            </MudTooltip>
+                            <MudList DisableGutters="true">
+                                <MudListItem Text="Nutritional values">
+                                    <NestedList>
+                                        <MudListItem DisableGutters="true" Dense="true">
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Kilocalories</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Kilocalories</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </MudPaper>
+                                        </MudListItem>
+                                        <MudListItem DisableGutters="true" Dense="true">
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Protein</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Protein</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </MudPaper>
+                                        </MudListItem>
+                                        <MudListItem DisableGutters="true" Dense="true">
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Fat</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Fat</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </MudPaper>
+                                        </MudListItem>
+                                        <MudListItem DisableGutters="true" Dense="true">
+                                            <MudPaper Class="pa-2">
+                                                <MudGrid Justify="Justify.SpaceBetween">
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">Carbs</MudText>
+                                                    </MudItem>
+                                                    <MudItem>
+                                                        <MudText Typo="Typo.body2">@i.NutritionalValues.Carbs</MudText>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </MudPaper>
+                                        </MudListItem>
+                                    </NestedList>
+                                </MudListItem>
+                            </MudList>
+
+                        </MudCardContent>
+                    </MudCard>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+
+    <div class="d-flex flex-column align-center ma-6">
+        <MudPagination @ref="@_pagination" SelectedChanged="PageChanged" BoundaryCount="2" MiddleCount="5" Count="_metaData.TotalPages" />
+    </div>
+
+    /*
+<CardDeck ColumnSize="">
+    @foreach(var i in ingredients)
+    {
+        <Card Style="display: flex; flex-direction:column">
+            <CardBody>
+                <CardTitle Size="5">
+                    @i.Name
+                </CardTitle>
+                <CardText>
+                    @i.Name
+                </CardText>
+            </CardBody>
+        </Card>
+    }
+</CardDeck>
+
+    */
+}
+
+@code {
+
+    private HttpClient client;
+
+    private MudPagination _pagination;
+
+    private List<Ingredient> ingredients;
+
+    private MetaData _metaData = new MetaData()
+    {
+        PageSize = 48,
+        CurrentPage = 1,
+        TotalCount = 0,
+        TotalPages = 0
+    };
+
+    private PagedList<Ingredient> currentIngredientsPage;
+
+
+   
+    protected override async Task OnInitializedAsync()
+    {
+        client = ClientFactory.CreateClient("Recipes.Anonymous");
+
+        ingredients = await GetAllAsync();
+
+        if (ingredients != null)
+        {
+            currentIngredientsPage = PagedList<Ingredient>
+                .ToPagedList(ingredients, _metaData.CurrentPage, _metaData.PageSize);
+            _metaData = currentIngredientsPage.MetaData;
+        }
+
+    }
+
+
+    private async Task<List<Ingredient>> GetAllAsync()
+    {
+        var i = new List<Ingredient>();
+        var param = new Dictionary<string, string>
+        {
+            ["pagination"] = "false"
+        };
+        var uri = QueryHelpers.AddQueryString("api/Ingredient", queryString: param);
+        try
+        {
+
+            var response = await client.GetAsync(uri);
+            var content = await response.Content.ReadAsStringAsync();
+            //_metaData = JsonConvert.DeserializeObject<MetaData>(response.Headers.GetValues("X-Pagination").First());
+            i = JsonConvert.DeserializeObject<List<Ingredient>>(content);
+            // await Js.InvokeVoidAsync("console.log", i);
+            // await Js.InvokeVoidAsync("console.log", _metaData);
+            // await Js.InvokeVoidAsync("console.log", ingredients);
+        }
+        catch (Exception)
+        {
+            // NavigationManager.NavigateTo("/");
+        }
+        return i;
+    }
+
+    private async void PageChanged(int i)
+    {
+        //var param = new Dictionary<string, string>
+        //{
+        //    ["pageNumber"] = i.ToString(),
+        //    ["pageSize"] = _metaData.PageSize.ToString()
+        //};
+        //var uri = QueryHelpers.AddQueryString("api/Ingredient", queryString: param);
+        //try
+        //{
+
+        //    var response = await client.GetAsync(uri);
+        //    var content = await response.Content.ReadAsStringAsync();
+        //    _metaData = JsonConvert.DeserializeObject<MetaData>(response.Headers.GetValues("X-Pagination").First());
+        //    ingredients = JsonConvert.DeserializeObject<List<Ingredient>>(content);
+        //    // await Js.InvokeVoidAsync("console.log", i);
+        //    // await Js.InvokeVoidAsync("console.log", _metaData);
+        //    // await Js.InvokeVoidAsync("console.log", ingredients);
+        //}
+        //catch (Exception)
+        //{
+        //    // NavigationManager.NavigateTo("/");
+        //}
+
+        //_pagination.NavigateTo(i-1);
+        if (ingredients != null)
+        {
+
+            currentIngredientsPage = PagedList<Ingredient>.ToPagedList(ingredients, i, 48);
+            _metaData = currentIngredientsPage.MetaData;
+            await Js.InvokeVoidAsync("ScrollToTop");
+        }
+        //StateHasChanged();
+        // await Js.InvokeVoidAsync("document.documentElement.scrollTop", 0);
+    }
+}

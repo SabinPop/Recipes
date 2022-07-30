@@ -1,0 +1,58 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+
+<AuthorizeView>
+    <Authorized>
+        <MudButtonGroup Variant="Variant.Text" Style="color: var(--mud-palette-appbar-text) !important;">
+            <MudButton StartIcon="@Icons.Material.Filled.PersonOutline" OnClick="Profile" Style="color: var(--mud-palette-appbar-text) !important;">
+                @context.User.Identity.Name
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Logout" OnClick="BeginSignOut" Style="color: var(--mud-palette-appbar-text) !important;">
+                Log out
+            </MudButton>
+        </MudButtonGroup>
+    </Authorized>
+    <NotAuthorized>
+        <MudButtonGroup Variant="Variant.Text" Style="color: inherit;">
+            <MudButton StartIcon="@Icons.Material.Filled.HowToReg" OnClick="Register" Style="color: var(--mud-palette-appbar-text) !important;">
+                Register
+            </MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Login" OnClick="LogIn" Style="color: var(--mud-palette-appbar-text) !important;">
+                Log In
+            </MudButton>
+        </MudButtonGroup>
+    </NotAuthorized>
+</AuthorizeView> 
+
+@code{
+
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+
+    private void NavigateTo(string href)
+    {
+        Navigation.NavigateTo(href);
+    }
+
+
+    private void LogIn()
+    {
+        NavigateTo("authentication/login");
+    }
+
+    private void Register()
+    {
+        NavigateTo("authentication/register");
+    }
+
+    private void Profile()
+    {
+        NavigateTo("authentication/profile");
+    }
+}

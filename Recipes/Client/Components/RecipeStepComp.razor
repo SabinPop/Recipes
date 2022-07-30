@@ -1,0 +1,53 @@
+﻿@using Recipes.Shared.Models
+
+<MudPaper Elevation="2">
+    <MudTextField ReadOnly="@ReadOnly" T="string" Label="Step title" For="(() => Title)" @bind-Value="Title" Variant="@SelectedVariant" />
+    <MudTextField ReadOnly="@ReadOnly" T="string" Label="Step description" For="(() => Description)" @bind-Value="Description" Variant="@SelectedVariant" Lines="@Lines" />
+</MudPaper>
+@code {
+    private string _title;
+    private string _description;
+
+    [Parameter]
+    public string Title
+    {
+        get => _title;
+        set
+        {
+            if (_title == value)
+                return;
+            _title = value;
+            OnTitleChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public string Description
+    {
+        get => _description;
+        set
+        {
+            if (_description == value)
+                return;
+            _description = value;
+            OnDescriptionChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public int Lines {get;set;} = 5;
+
+    [Parameter]
+    public bool ReadOnly { get; set; } = false;
+
+    [Parameter]
+    public Variant SelectedVariant { get; set; } = Variant.Outlined;
+
+    [Parameter]
+    public EventCallback<string> OnTitleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnDescriptionChanged { get; set; }
+
+
+}

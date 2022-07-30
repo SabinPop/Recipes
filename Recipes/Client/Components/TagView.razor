@@ -1,0 +1,34 @@
+﻿@using Recipes.Shared.Models
+
+<MudItem xs="6" sm="4" md="3" xl="2">
+    <MudLink Href="@Href">
+        <MudPaper Elevation="3" Class="pa-3">
+            <MudGrid Justify="Justify.FlexStart" Spacing="3">
+                <MudItem>
+                    <MudIcon Icon="@Icons.Material.Filled.Tag" 
+                             Size="Size.Medium" Title="Tag"></MudIcon>
+                </MudItem>
+                <MudItem>
+                    <MudText Typo="Typo.body1">
+                        @Tag.Name
+                    </MudText>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudLink>
+</MudItem>
+
+@code {
+
+    [Parameter]
+    public TagEdit Tag { get; set; }
+
+    string Href { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Href = $"/tags/view/{this.Tag.Name}/";
+    }
+}
+
+

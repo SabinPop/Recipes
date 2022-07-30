@@ -1,0 +1,98 @@
+﻿@page "/"
+@page "/recipes"
+
+@using Recipes.Shared.Models
+@using Recipes.Shared.Paging
+@using Microsoft.AspNetCore.Authorization
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.WebUtilities
+@using Newtonsoft.Json
+@using Recipes.Client.Components
+
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+
+
+@if (isLoading == true)
+{
+    <Loading></Loading>
+}
+else if (Recipes.Count() == 0)
+{
+    <MudText Typo="Typo.body1">
+        No recipes found
+    </MudText>
+}
+else
+{
+    <h2 class="ma-6">Recipes - Page </h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach (var recipe in Recipes)
+        {
+            <RecipePartial RecipeDetails="@recipe"></RecipePartial>
+        }
+    </MudGrid>
+    <AuthorizeView>
+        <Authorized>
+
+            <MudFab Label="Create recipe" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add"
+                    Size="Size.Medium" Style="position: fixed; right: 50px; bottom: 40px"
+                    OnClick="CreateRecipe" />
+
+        </Authorized>
+    </AuthorizeView>
+}
+
+@code {
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; }
+
+    HttpClient publicHttpClient;
+    List<RecipeDetails> Recipes = new List<RecipeDetails>();
+
+    private bool isLoading = false;
+
+    private string _user = string.Empty;
+
+    private void CreateRecipe()
+    {
+        NavigationManager.NavigateTo("/recipes/create");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        publicHttpClient = ClientFactory.CreateClient("Recipes.Anonymous");
+
+        var authState = await AuthenticationState;
+        if (authState.User.Identity.IsAuthenticated)
+            _user = authState.User.Identity.Name;
+
+        isLoading = true;
+        Recipes = await GetAllAsync();
+        isLoading = false;
+    }
+
+    private async Task<List<RecipeDetails>> GetAllAsync()
+    {
+        var i = new List<RecipeDetails>();
+        var param = new Dictionary<string, string>
+        {
+            ["pagination"] = "false",
+            ["username"] = _user
+        };
+        var uri = QueryHelpers.AddQueryString("api/Recipe", queryString: param);
+        try
+        {
+
+            var response = await publicHttpClient.GetAsync(uri);
+            var content = await response.Content.ReadAsStringAsync();
+            i = JsonConvert.DeserializeObject<List<RecipeDetails>>(content);
+        }
+        catch (Exception)
+        {
+            // NavigationManager.NavigateTo("/");
+        }
+        return i;
+    }
+}

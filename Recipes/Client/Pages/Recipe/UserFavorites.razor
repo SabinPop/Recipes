@@ -1,0 +1,92 @@
+﻿@page "/my/favorites"
+
+@using Recipes.Shared.Models
+@using Recipes.Shared.Paging
+@using Microsoft.AspNetCore.Authorization
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.WebUtilities
+@using Newtonsoft.Json
+@using Recipes.Client.Components
+
+@inject HttpClient PrivateHttp
+@inject NavigationManager NavigationManager
+
+
+@if (isLoading == true)
+{
+    <Loading></Loading>
+}
+else if (Recipes.Count() == 0)
+{
+    <MudText Typo="Typo.body1">
+        No recipes found
+    </MudText>
+}
+else
+{
+    <h2 class="ma-6"> My favorite recipes</h2>
+    <MudGrid Justify="Justify.SpaceEvenly" Spacing="2" Class="my-6">
+        @foreach (var recipe in Recipes)
+        {
+            <RecipePartial RecipeDetails="@recipe"></RecipePartial>
+        }
+    </MudGrid>
+}
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationState { get; set; }
+
+    [Parameter]
+    public string Author { get; set; } = null;
+
+    HttpClient publicHttpClient;
+    List<RecipeDetails> Recipes = new List<RecipeDetails>();
+
+    private bool isLoading = false;
+
+    private string _user;
+
+    private bool _isMy = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        _user = authState.User.Identity.Name;
+
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            _isMy = true;
+            isLoading = true;
+            Recipes = await GetAllAsync();
+            isLoading = false;
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"authentication/login?returnUrl=" +
+                $"{Uri.EscapeDataString(NavigationManager.Uri)}");
+        }
+    }
+
+    private async Task<List<RecipeDetails>> GetAllAsync()
+    {
+        var i = new List<RecipeDetails>();
+        var param = new Dictionary<string, string>
+        {
+            ["username"] = _user
+        };
+        var uri = QueryHelpers.AddQueryString("api/Recipe/my/favorites", queryString: param);
+        try
+        {
+
+            var response = await PrivateHttp.GetAsync(uri);
+            var content = await response.Content.ReadAsStringAsync();
+            i = JsonConvert.DeserializeObject<List<RecipeDetails>>(content);
+        }
+        catch (Exception)
+        {
+            // NavigationManager.NavigateTo("/");
+        }
+        return i;
+    }
+}
